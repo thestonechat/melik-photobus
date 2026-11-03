@@ -1,0 +1,143 @@
+{
+  "meta": {
+    "title": "PhotoBus — Photo Booth on Wheels",
+    "description": "A classic photo bus that rolls up to your wedding, birthday, or office party anywhere in Georgia. Step inside, snap, and make memories."
+  },
+  "nav": {
+    "about": "About",
+    "gallery": "Gallery",
+    "pictures": "Your Pictures",
+    "book": "Book Now",
+    "cta": "Book the Bus",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "localeSwitcher": {
+    "switchToEn": "Switch to English",
+    "switchToKa": "გადართე ქართულზე",
+    "enShort": "EN",
+    "kaShort": "ქა"
+  },
+  "hero": {
+    "eyebrow": "Photo booth on wheels",
+    "title1": "Your party,",
+    "title2": "on wheels.",
+    "subtitle": "PhotoBus rolls up to weddings, birthdays, and office parties anywhere in Georgia. Step inside the booth — the camera's always ready.",
+    "ctaBook": "Book Your Date",
+    "ctaBus": "Meet the Bus"
+  },
+  "about": {
+    "eyebrow": "About the bus",
+    "title1": "A photo studio",
+    "title2": "that drives to",
+    "accent": "you.",
+    "description": "PhotoBus is a classic step-in photo booth on wheels, wrapped in yellow and white. Our crew brings a fully-equipped studio to your doorstep and turns a moment into a memory.",
+    "weddings": {
+      "title": "Weddings",
+      "text": "First-dance portraits, family shots, and guest-book magic — right off the dance floor."
+    },
+    "birthdays": {
+      "title": "Birthdays",
+      "text": "Cake, confetti, and candid snaps. The booth that turns your guests into stars."
+    },
+    "corporate": {
+      "title": "Corporate Events",
+      "text": "Team days, launches, retreats. Give your people a photo moment they'll talk about."
+    },
+    "festivals": {
+      "title": "Festivals & More",
+      "text": "Street fairs, concerts, school events — we park up wherever the good times are."
+    },
+    "stats": {
+      "map": { "value": "All of Georgia", "label": "From Tbilisi to Batumi" },
+      "studio": { "value": "Studio on wheels", "label": "Set up in minutes" },
+      "keepsakes": { "value": "Instant keepsakes", "label": "A printed souvenir, every time" }
+    }
+  },
+  "gallery": {
+    "eyebrow": "Past events",
+    "title1": "Good times,",
+    "title2": "in",
+    "accent": "frames.",
+    "description": "We just hit the road — fresh photos from every event will land here soon. This is where the good times get posted.",
+    "placeholderTitle": "Your event could be here",
+    "placeholderText": "First photos arrive with our first bookings",
+    "footerNote": "Been to one of our events? Tag us — we love resharing guest photos."
+  },
+  "booking": {
+    "eyebrow": "Book now",
+    "title1": "Reserve the bus",
+    "title2": "for your",
+    "accent": "date.",
+    "description": "Tell us where and when — we'll bring the bus, the booth, and the smiles. We reply within 24 hours to confirm.",
+    "detailsTitle": "Your details",
+    "requiredHint": "Fields marked with * are required.",
+    "name": "Full name",
+    "email": "Email",
+    "address": "Venue / address",
+    "eventType": "What's the occasion?",
+    "namePlaceholder": "Nino Beridze",
+    "emailPlaceholder": "nino@example.com",
+    "addressPlaceholder": "12 Abano St, Tbilisi",
+    "eventPlaceholder": "Wedding, birthday, office party...",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "errors": {
+      "name": "Please tell us your name.",
+      "email": "We need an email to confirm your booking.",
+      "emailInvalid": "That email doesn't look right.",
+      "address": "Where should the bus roll up to?",
+      "eventType": "Tell us what you're celebrating.",
+      "date": "Pick at least one date from the calendar."
+    },
+    "submitSingle": "Request this date",
+    "submitRange": "Request these dates",
+    "noPayment": "No payment now — we first confirm availability by email.",
+    "calendarTitle": "Pick your dates",
+    "pickDays": "Tap days",
+    "viewingPrefix": "You're looking at",
+    "success": {
+      "title": "Request received!",
+      "thanks": "Thanks, {name}. Here's what we noted:",
+      "dateFallback": "Date to be confirmed",
+      "confirm": "We'll confirm your booking at {email} within 24 hours.",
+      "another": "Book another date"
+    }
+  },
+  "pictures": {
+    "metaTitle": "Your Pictures — PhotoBus",
+    "metaDescription": "Enter your event code to view and download every photo from your PhotoBus experience.",
+    "eyebrow": "Your pictures",
+    "title1": "Find your",
+    "title2": "photos.",
+    "description": "Enter the code from your event and grab every photo we took. The code is on your photo strip or in the email we sent to your host.",
+    "codeLabel": "Event code",
+    "codePlaceholder": "e.g. DEMO1",
+    "submit": "Show my pictures",
+    "idleHint": "Where's my code? It's printed on your photo strip or in your confirmation email.",
+    "loading": "Looking up your pictures…",
+    "notFound": "We couldn't find any pictures for that code.",
+    "notFoundHint": "Double-check the code and try again — try DEMO1 to see a sample.",
+    "error": "Something went wrong. Please try again in a moment.",
+    "foundTitle": "{count, plural, one {# picture found} other {# pictures found}}",
+    "download": "Download",
+    "photoAlt": "Photo {n}"
+  },
+  "footer": {
+    "blurb": "A classic photo booth on wheels, serving celebrations across Georgia — from Tbilisi to the coast.",
+    "exploreTitle": "Explore",
+    "about": "About the bus",
+    "gallery": "Gallery",
+    "pictures": "Your pictures",
+    "book": "Book now",
+    "contact": "Get in touch",
+    "follow": "Follow the bus",
+    "followText": "Fresh photos and road updates from every event.",
+    "location": "Tbilisi, Georgia — rolling everywhere",
+    "rights": "© {year} PhotoBus. All rights reserved.",
+    "madeWith": "Made with love in Georgia"
+  },
+  "bus3d": {
+    "fallback": "The 3D bus needs WebGL — here's a photo placeholder instead."
+  }
+}
