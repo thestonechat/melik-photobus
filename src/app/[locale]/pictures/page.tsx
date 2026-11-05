@@ -1,5 +1,4 @@
-import { redirect } from "@/i18n/navigation";
-import type { Locale } from "@/i18n/routing";
+import { redirect } from "next/navigation";
 
 export default async function PicturesPage({
   params,
@@ -7,5 +6,5 @@ export default async function PicturesPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  redirect({ href: "/#pictures", locale: locale as Locale });
+  redirect(`/${locale}#pictures`);
 }

@@ -112,7 +112,7 @@ export function PicturesFinder() {
               <h3 className="font-display text-lg font-bold text-ink">
                 {t("foundTitle", { count: photos.length })}
               </h3>
-              <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 {photos.map((src, i) => (
                   <motion.div
                     key={src}

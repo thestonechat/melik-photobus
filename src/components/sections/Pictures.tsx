@@ -15,6 +15,7 @@ export function Pictures() {
       <div className="mx-auto grid max-w-6xl items-start gap-8 px-5 sm:px-8 lg:grid-cols-[2fr_3fr] lg:gap-12">
         <SectionHeading
           align="left"
+          reveal={false}
           eyebrow={t("eyebrow")}
           title={
             <>

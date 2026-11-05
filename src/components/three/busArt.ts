@@ -11,6 +11,8 @@ export const COLORS = {
   dome: "#f59e0b",
 };
 
+export const WHEEL_ARCH = { axle: 1, y: 0.38, radius: 0.45 };
+
 /** Height of the line where the yellow lower body meets the white upper body. */
 const PAINT_SPLIT_GLSL = "1.1 - 0.04 * vPaint.x";
 
@@ -28,21 +30,25 @@ export function createBodyMaterial() {
   const material = new THREE.MeshToonMaterial({ gradientMap: toonGradient });
   const lower = new THREE.Color(COLORS.primary);
   const upper = new THREE.Color(COLORS.paper);
+  const archLining = new THREE.Color(COLORS.ink);
 
   material.onBeforeCompile = (shader) => {
     shader.uniforms.lowerPaint = { value: lower };
     shader.uniforms.upperPaint = { value: upper };
+    shader.uniforms.archLining = { value: archLining };
     shader.vertexShader = `varying vec2 vPaint;\n${shader.vertexShader}`.replace(
       "#include <begin_vertex>",
       "#include <begin_vertex>\nvPaint = position.xy;",
     );
     shader.fragmentShader =
-      `varying vec2 vPaint;\nuniform vec3 lowerPaint;\nuniform vec3 upperPaint;\n${shader.fragmentShader}`.replace(
+      `varying vec2 vPaint;\nuniform vec3 lowerPaint;\nuniform vec3 upperPaint;\nuniform vec3 archLining;\n${shader.fragmentShader}`.replace(
         "#include <color_fragment>",
         `#include <color_fragment>
         float paintEdge = vPaint.y - (${PAINT_SPLIT_GLSL});
         float paintBlur = fwidth(paintEdge);
-        diffuseColor.rgb = mix(lowerPaint, upperPaint, smoothstep(-paintBlur, paintBlur, paintEdge));`,
+        diffuseColor.rgb = mix(lowerPaint, upperPaint, smoothstep(-paintBlur, paintBlur, paintEdge));
+        float archEdge = length(vec2(abs(vPaint.x) - ${WHEEL_ARCH.axle.toFixed(2)}, vPaint.y - ${WHEEL_ARCH.y.toFixed(2)})) - ${WHEEL_ARCH.radius.toFixed(2)};
+        diffuseColor.rgb = mix(archLining, diffuseColor.rgb, step(0.0, archEdge));`,
       );
   };
   return material;
@@ -111,7 +117,7 @@ export function createSignTexture() {
   const width = 1024;
   const height = 256;
   const family = getComputedStyle(document.body).getPropertyValue("--font-space-grotesk");
-  const font = `700 150px ${family || "sans-serif"}`;
+  const font = `700 200px ${family || "sans-serif"}`;
 
   const texture = canvasTexture(width, height, (ctx) => {
     drawSign(ctx, font);
@@ -133,7 +139,7 @@ function drawSign(ctx: CanvasRenderingContext2D, font: string) {
   ctx.shadowBlur = 36;
   ctx.fillStyle = COLORS.dome;
   ctx.beginPath();
-  ctx.arc(128, 188, 64, Math.PI, 0);
+  ctx.arc(112, 190, 74, Math.PI, 0);
   ctx.closePath();
   ctx.fill();
 
@@ -145,7 +151,7 @@ function drawSign(ctx: CanvasRenderingContext2D, font: string) {
   ctx.shadowBlur = 30;
   ctx.strokeStyle = COLORS.neon;
   ctx.lineWidth = 14;
-  ctx.strokeText("PHOTOS", 222, height / 2 + 8);
+  ctx.strokeText("PHOTOS", 212, height / 2 + 10);
   ctx.fillStyle = COLORS.paper;
-  ctx.fillText("PHOTOS", 222, height / 2 + 8);
+  ctx.fillText("PHOTOS", 212, height / 2 + 10);
 }

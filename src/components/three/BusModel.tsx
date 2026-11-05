@@ -1,20 +1,42 @@
 "use client";
 
-import { Component, Suspense, type ReactNode } from "react";
+import { Component, Suspense, useLayoutEffect, type ReactNode } from "react";
+import * as THREE from "three";
 import { Camera } from "lucide-react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { Float, OrbitControls } from "@react-three/drei";
 import { COLORS } from "./busArt";
 import { PhotoBus } from "./PhotoBus";
+
+const CAMERA_TARGET = new THREE.Vector3(0, 1.25, 0);
+const CAMERA_FOV = 35;
+/** World-space half extents the camera must keep in frame at any orbit angle. */
+const FRAME_HALF_WIDTH = 2.8;
+const FRAME_HALF_HEIGHT = 2;
+
+/** Picks the orbit distance per canvas aspect, so wide mobile canvases don't shrink the bus. */
+function FitCamera() {
+  const camera = useThree((state) => state.camera);
+  const aspect = useThree((state) => state.viewport.aspect);
+
+  useLayoutEffect(() => {
+    const halfHeight = Math.max(FRAME_HALF_HEIGHT, FRAME_HALF_WIDTH / aspect);
+    const distance = halfHeight / Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
+    camera.position.sub(CAMERA_TARGET).setLength(distance).add(CAMERA_TARGET);
+  }, [camera, aspect]);
+
+  return null;
+}
 
 function BusScene() {
   return (
     <Canvas
       flat
       dpr={[1, 2]}
-      camera={{ position: [6.5, 3.2, 7.5], fov: 35 }}
+      camera={{ position: [6.9, 3.4, 8], fov: CAMERA_FOV }}
       gl={{ antialias: true, alpha: true }}
     >
+      <FitCamera />
       <ambientLight intensity={2.1} color="#ffedd5" />
       <directionalLight position={[3, 7, 6]} intensity={1.6} />
 
@@ -22,7 +44,7 @@ function BusScene() {
         <Float speed={1.6} rotationIntensity={0.25} floatIntensity={0.5}>
           <PhotoBus />
         </Float>
-        <mesh rotation-x={-Math.PI / 2} position-y={0.005} scale={[3, 1.35, 1]}>
+        <mesh rotation-x={-Math.PI / 2} position-y={0.005} scale={[2.5, 1.15, 1]}>
           <circleGeometry args={[1, 48]} />
           <meshBasicMaterial color={COLORS.ink} transparent opacity={0.14} />
         </mesh>
@@ -30,7 +52,7 @@ function BusScene() {
 
       <OrbitControls
         makeDefault
-        target={[0, 1.25, 0]}
+        target={CAMERA_TARGET}
         enableZoom={false}
         enablePan={false}
         autoRotate

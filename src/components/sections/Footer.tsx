@@ -93,10 +93,10 @@ export async function Footer() {
             <li className="flex items-center gap-2.5">
               <Mail className="h-4 w-4 text-primary" />
               <a
-                href="mailto:hello@photograph.ge"
+                href="mailto:hello@photobus.ge"
                 className="transition-colors hover:text-primary"
               >
-                hello@photograph.ge
+                hello@photobus.ge
               </a>
             </li>
             <li className="flex items-center gap-2.5">

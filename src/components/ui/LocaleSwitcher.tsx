@@ -20,7 +20,9 @@ export function LocaleSwitcher() {
 
   function onSelectChange(nextLocale: (typeof routing.locales)[number]) {
     startTransition(() => {
-      router.replace(pathname, { locale: nextLocale });
+      router.replace(`${pathname}${window.location.hash}`, {
+        locale: nextLocale,
+      });
     });
   }
 
