@@ -45,13 +45,13 @@ export function Gallery() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-40px" }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="-mx-5 mt-2 flex snap-x overflow-x-auto px-5 py-8 [--overlap:3.5rem] [scrollbar-width:none] sm:-mx-8 sm:px-8 lg:mx-0 lg:justify-center lg:overflow-visible lg:px-0 lg:[--overlap:6rem]"
+          className="-mx-5 mt-2 flex snap-x snap-mandatory overflow-x-auto px-5 py-8 [scrollbar-width:none] sm:-mx-8 sm:px-8 lg:mx-0 lg:justify-center lg:overflow-visible lg:px-0 lg:[--overlap:6rem]"
         >
           {/* Slots never move, so hover can't flicker: they set the vars, the card transforms. */}
           {prints.map((src) => (
             <div
               key={src}
-              className="peer w-44 shrink-0 snap-center not-first:-ml-(--overlap) hover:[--lift:-1rem] hover:[--skew:-2deg] hover:[--turn:1] peer-hover:[--slide:var(--overlap)] lg:w-48"
+              className="peer w-56 shrink-0 snap-center lg:not-first:-ml-(--overlap) hover:[--lift:-1rem] hover:[--skew:-2deg] hover:[--turn:1] peer-hover:[--slide:var(--overlap)] lg:w-48"
             >
               <div className="pointer-events-none h-full border-2 border-ink bg-white p-2.5 pb-3 shadow-[4px_4px_0_0_var(--color-ink)] transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] [transform:translate(var(--slide,0),var(--lift,0))_scaleX(var(--turn,0.88))_skewY(var(--skew,-8deg))] motion-reduce:transition-none">
                 <div className="relative aspect-square overflow-hidden bg-primary-faint">

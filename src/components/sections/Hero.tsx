@@ -26,7 +26,7 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: "easeOut" as const } },
 };
 
-const ctaLayout = "grow whitespace-nowrap px-3 text-base sm:grow-0 sm:px-8 sm:text-lg";
+const ctaLayout = "grow whitespace-nowrap px-2.5 text-base sm:grow-0 sm:px-8 sm:text-lg";
 
 export function Hero() {
   const t = useTranslations("hero");
