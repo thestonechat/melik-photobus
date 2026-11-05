@@ -7,7 +7,8 @@ export const COLORS = {
   paperSoft: "#fafafa",
   primary: "#facc15",
   primarySoft: "#fef9c3",
-  neon: "#ef4444",
+  neon: "#ff1a1a",
+  neonOff: "#fecaca",
   dome: "#f59e0b",
 };
 
@@ -113,45 +114,126 @@ export function createGlassTexture() {
   });
 }
 
-export function createSignTexture() {
-  const width = 1024;
-  const height = 256;
-  const family = getComputedStyle(document.body).getPropertyValue("--font-space-grotesk");
-  const font = `700 200px ${family || "sans-serif"}`;
+const LETTER_HEIGHT = 340;
+const TUBE_WIDTH = 12;
+const SIGN_LETTERS = [
+  { path: "M0 100V0H42a28 28 0 0 1 0 56H0", width: 70 },
+  { path: "M0 0V100M70 0V100M0 50H70", width: 70 },
+  { path: "M35 0a35 35 0 0 1 35 35v30a35 35 0 0 1-70 0V35A35 35 0 0 1 35 0z", width: 70 },
+  { path: "M0 0H76M38 0V100", width: 76 },
+  { path: "M35 0a35 35 0 0 1 35 35v30a35 35 0 0 1-70 0V35A35 35 0 0 1 35 0z", width: 70 },
+  { path: "M70 20C60-8 4-8 3 26C2 58 72 44 72 76C72 108 8 108 0 78", width: 72 },
+];
+const SIGN_DOME = "M-36 100a36 36 0 0 1 72 0zM0 46V30M-34 58-45 47M34 58 45 47";
+const FLICKER_LETTER = 3;
+const LETTER_GAP = 24;
+const DOME_ADVANCE = 62;
+const SIGN_CANVAS = { width: 2560, height: 800 };
+/** World size of the sign layers; matches the canvas aspect so tubes are not stretched. */
+export const SIGN_PLANE = { width: 3.3, height: (3.3 * SIGN_CANVAS.height) / SIGN_CANVAS.width };
 
-  const texture = canvasTexture(width, height, (ctx) => {
-    drawSign(ctx, font);
-    document.fonts.load(font, "PHOTOS").then(() => {
-      drawSign(ctx, font);
-      texture.needsUpdate = true;
-    });
-  });
-  return texture;
+function drawTube(ctx: CanvasRenderingContext2D, path: Path2D, color: string) {
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.shadowColor = color;
+  for (const [width, blur, stroke] of [
+    [TUBE_WIDTH, 130, color],
+    [TUBE_WIDTH, 130, color],
+    [TUBE_WIDTH, 60, color],
+    [TUBE_WIDTH, 24, color],
+    [TUBE_WIDTH * 0.34, 8, COLORS.paper],
+  ] as const) {
+    ctx.lineWidth = width;
+    ctx.shadowBlur = blur;
+    ctx.strokeStyle = stroke;
+    ctx.stroke(path);
+  }
 }
 
-function drawSign(ctx: CanvasRenderingContext2D, font: string) {
-  const { width, height } = ctx.canvas;
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = COLORS.ink;
-  ctx.fillRect(0, 0, width, height);
+/** Runs `draw` once per letter, in sign space where letters are 100 units tall. */
+function forEachLetter(
+  ctx: CanvasRenderingContext2D,
+  draw: (path: Path2D, index: number) => void,
+) {
+  const unit = LETTER_HEIGHT / 100;
+  const wordWidth =
+    SIGN_LETTERS.reduce((sum, letter) => sum + letter.width, 0) +
+    LETTER_GAP * SIGN_LETTERS.length;
+  ctx.setTransform(
+    unit,
+    0,
+    0,
+    unit,
+    (SIGN_CANVAS.width - (wordWidth + DOME_ADVANCE) * unit) / 2,
+    (SIGN_CANVAS.height - LETTER_HEIGHT) / 2,
+  );
+  ctx.translate(DOME_ADVANCE + LETTER_GAP, 0);
+  SIGN_LETTERS.forEach((letter, index) => {
+    draw(new Path2D(letter.path), index);
+    ctx.translate(letter.width + LETTER_GAP, 0);
+  });
+}
 
-  ctx.shadowColor = COLORS.dome;
-  ctx.shadowBlur = 36;
-  ctx.fillStyle = COLORS.dome;
-  ctx.beginPath();
-  ctx.arc(112, 190, 74, Math.PI, 0);
-  ctx.closePath();
-  ctx.fill();
+function neonMaterial(draw: (ctx: CanvasRenderingContext2D) => void) {
+  const map = canvasTexture(SIGN_CANVAS.width, SIGN_CANVAS.height, draw);
+  return new THREE.MeshBasicMaterial({ map, transparent: true, depthWrite: false });
+}
 
-  ctx.font = font;
-  ctx.textAlign = "left";
-  ctx.textBaseline = "middle";
-  ctx.lineJoin = "round";
-  ctx.shadowColor = COLORS.neon;
-  ctx.shadowBlur = 30;
-  ctx.strokeStyle = COLORS.neon;
-  ctx.lineWidth = 14;
-  ctx.strokeText("PHOTOS", 212, height / 2 + 10);
-  ctx.fillStyle = COLORS.paper;
-  ctx.fillText("PHOTOS", 212, height / 2 + 10);
+/** Free-standing tubes on transparent layers; `flicker` holds the one letter that buzzes. */
+export function createNeonMaterials() {
+  const steady = neonMaterial((ctx) => {
+    forEachLetter(ctx, (path, index) => {
+      if (index === 0) {
+        ctx.save();
+        ctx.translate(-DOME_ADVANCE, 0);
+        drawTube(ctx, new Path2D(SIGN_DOME), COLORS.dome);
+        ctx.restore();
+      }
+      if (index === FLICKER_LETTER) {
+        ctx.shadowBlur = 0;
+        ctx.lineWidth = TUBE_WIDTH * 0.6;
+        ctx.strokeStyle = COLORS.neonOff;
+        ctx.stroke(path);
+      } else {
+        drawTube(ctx, path, COLORS.neon);
+      }
+    });
+  });
+  const flicker = neonMaterial((ctx) => {
+    forEachLetter(ctx, (path, index) => {
+      if (index === FLICKER_LETTER) drawTube(ctx, path, COLORS.neon);
+    });
+  });
+  return { steady, flicker };
+}
+
+export function createGlowTexture(rays: number, core = 1) {
+  const size = 512;
+  const center = size / 2;
+  return canvasTexture(size, size, (ctx) => {
+    ctx.translate(center, center);
+    ctx.fillStyle = COLORS.primary;
+    for (let i = 0; i < rays; i++) {
+      const length = center * (i % 2 ? 0.62 : 0.98);
+      ctx.save();
+      ctx.rotate((i / rays) * Math.PI * 2);
+      const fade = ctx.createLinearGradient(0, 0, length, 0);
+      fade.addColorStop(0, "rgba(250, 204, 21, 0.95)");
+      fade.addColorStop(1, "rgba(250, 204, 21, 0)");
+      ctx.fillStyle = fade;
+      ctx.beginPath();
+      ctx.moveTo(0, -11);
+      ctx.lineTo(length, 0);
+      ctx.lineTo(0, 11);
+      ctx.fill();
+      ctx.restore();
+    }
+    const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, center);
+    glow.addColorStop(0, `rgba(255, 255, 255, ${core})`);
+    glow.addColorStop(0.12, `rgba(250, 204, 21, ${0.4 + 0.5 * core})`);
+    glow.addColorStop(0.4, "rgba(250, 204, 21, 0.4)");
+    glow.addColorStop(1, "rgba(250, 204, 21, 0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(-center, -center, size, size);
+  });
 }

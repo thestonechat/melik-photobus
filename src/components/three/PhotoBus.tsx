@@ -6,7 +6,6 @@ import {
   createBodyMaterial,
   createCurtainTexture,
   createGlassTexture,
-  createSignTexture,
   toonGradient,
   WHEEL_ARCH,
 } from "./busArt";
@@ -20,7 +19,6 @@ import {
   HATCH_HINGE,
   hatchWindow,
   rackPoints,
-  RACK_Y,
   rearWindows,
   rimGeometry,
   seams,
@@ -33,11 +31,11 @@ import {
   windshieldCenter,
   windshieldNormal,
 } from "./busGeometry";
+import { Headlight, HeadlightPool, RoofSign } from "./BusLights";
 
 const bodyMaterial = createBodyMaterial();
 const curtainTexture = createCurtainTexture();
 const glassTexture = createGlassTexture();
-const signTexture = createSignTexture();
 
 function Toon({
   color,
@@ -123,14 +121,7 @@ function BusFlank() {
       <Wheel x={-WHEEL_ARCH.axle} />
 
       <group position={[1.855, 0.8, 0.5]} rotation-y={Math.PI / 2}>
-        <mesh>
-          <circleGeometry args={[0.15, 32]} />
-          <meshToonMaterial color={COLORS.primarySoft} gradientMap={toonGradient} />
-        </mesh>
-        <mesh>
-          <torusGeometry args={[0.15, 0.024, 10, 32]} />
-          <meshBasicMaterial color={COLORS.ink} />
-        </mesh>
+        <Headlight />
       </group>
 
       <mesh position={[-1.85, 0.72, 0.56]}>
@@ -146,32 +137,6 @@ function BusFlank() {
         lineWidth={2}
       />
     </>
-  );
-}
-
-function RoofSign() {
-  return (
-    <group position={[-0.25, RACK_Y + 0.33, 0]}>
-      <Toon color={COLORS.ink} outline={0.018}>
-        <boxGeometry args={[2.3, 0.575, 0.05]} />
-      </Toon>
-      {[0, Math.PI].map((angle) => (
-        <mesh key={angle} rotation-y={angle} position-z={angle ? -0.026 : 0.026}>
-          <planeGeometry args={[2.3, 0.575]} />
-          <meshBasicMaterial map={signTexture} />
-        </mesh>
-      ))}
-      <InkLine
-        segments
-        points={[
-          [-0.8, -0.29, 0],
-          [-0.8, -0.33, 0],
-          [0.8, -0.29, 0],
-          [0.8, -0.33, 0],
-        ]}
-        lineWidth={3}
-      />
-    </group>
   );
 }
 
@@ -232,6 +197,7 @@ export function PhotoBus() {
       <InkLine segments points={rackPoints} lineWidth={2.4} />
       <RoofSign />
       <OpenHatch />
+      <HeadlightPool />
     </group>
   );
 }
