@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "PhotoBus — Photo Booth on Wheels",
-    "description": "A classic photo bus that rolls up to your wedding, birthday, or office party anywhere in Georgia. Step inside, snap, and make memories."
+    "title": "Photograph — Photo Booth on Wheels",
+    "description": "A classic photo booth on wheels that rolls up to your wedding, birthday, or office party anywhere in Georgia. Step inside, snap, and make memories."
   },
   "nav": {
     "about": "About",
@@ -22,16 +22,17 @@
     "eyebrow": "Photo booth on wheels",
     "title1": "Your party,",
     "title2": "on wheels.",
-    "subtitle": "PhotoBus rolls up to weddings, birthdays, and office parties anywhere in Georgia. Step inside the booth — the camera's always ready.",
+    "subtitle": "Photograph rolls up to weddings, birthdays, and office parties anywhere in Georgia. Step inside the booth — the camera's always ready.",
     "ctaBook": "Book Your Date",
-    "ctaBus": "Meet the Bus"
+    "ctaBus": "Meet the Bus",
+    "ctaPictures": "Been to one of our events? Find your photos"
   },
   "about": {
     "eyebrow": "About the bus",
     "title1": "A photo studio",
     "title2": "that drives to",
     "accent": "you.",
-    "description": "PhotoBus is a classic step-in photo booth on wheels, wrapped in yellow and white. Our crew brings a fully-equipped studio to your doorstep and turns a moment into a memory.",
+    "description": "Photograph is a classic step-in photo booth on wheels, wrapped in yellow and white. Our crew brings a fully-equipped studio to your doorstep and turns a moment into a memory.",
     "weddings": {
       "title": "Weddings",
       "text": "First-dance portraits, family shots, and guest-book magic — right off the dance floor."
@@ -105,8 +106,6 @@
     }
   },
   "pictures": {
-    "metaTitle": "Your Pictures — PhotoBus",
-    "metaDescription": "Enter your event code to view and download every photo from your PhotoBus experience.",
     "eyebrow": "Your pictures",
     "title1": "Find your",
     "title2": "photos.",
@@ -134,7 +133,7 @@
     "follow": "Follow the bus",
     "followText": "Fresh photos and road updates from every event.",
     "location": "Tbilisi, Georgia — rolling everywhere",
-    "rights": "© {year} PhotoBus. All rights reserved.",
+    "rights": "© {year} Photograph. All rights reserved.",
     "madeWith": "Made with love in Georgia"
   },
   "bus3d": {

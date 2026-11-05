@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Camera, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -10,9 +9,9 @@ import { LocaleSwitcher } from "@/components/ui/LocaleSwitcher";
 import { cn } from "@/lib/utils";
 
 const links = [
+  { key: "pictures", href: "#pictures" },
   { key: "about", href: "#about" },
   { key: "gallery", href: "#gallery" },
-  { key: "pictures", href: "/pictures", page: true },
   { key: "book", href: "#book" },
 ] as const;
 
@@ -46,30 +45,20 @@ export function Navbar() {
             <Camera className="h-4.5 w-4.5 text-primary" />
           </span>
           <span className="font-display text-xl font-bold tracking-tight text-ink">
-            Photo<span className="text-primary-strong">Bus</span>
+            Photo<span className="text-primary-strong">graph</span>
           </span>
         </a>
 
         <div className="hidden items-center gap-1 md:flex">
-          {links.map((link) =>
-            "page" in link ? (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="rounded-full px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-primary hover:text-ink"
-              >
-                {t(link.key)}
-              </Link>
-            ) : (
-              <a
-                key={link.href}
-                href={link.href}
-                className="rounded-full px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-primary hover:text-ink"
-              >
-                {t(link.key)}
-              </a>
-            ),
-          )}
+          {links.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="rounded-full px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-primary hover:text-ink"
+            >
+              {t(link.key)}
+            </a>
+          ))}
           <LocaleSwitcher />
           <Button href="#book" size="sm" className="ml-3">
             {t("cta")}
@@ -97,27 +86,16 @@ export function Navbar() {
             className="overflow-hidden border-b-2 border-ink bg-white md:hidden"
           >
             <div className="flex flex-col gap-1 px-5 pb-5 pt-2">
-              {links.map((link) =>
-                "page" in link ? (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className="rounded-xl px-4 py-3 font-semibold text-ink transition-colors hover:bg-primary"
-                  >
-                    {t(link.key)}
-                  </Link>
-                ) : (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className="rounded-xl px-4 py-3 font-semibold text-ink transition-colors hover:bg-primary"
-                  >
-                    {t(link.key)}
-                  </a>
-                ),
-              )}
+              {links.map((link) => (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-xl px-4 py-3 font-semibold text-ink transition-colors hover:bg-primary"
+                >
+                  {t(link.key)}
+                </a>
+              ))}
               <div className="mt-2 flex items-center justify-between gap-3">
                 <LocaleSwitcher />
                 <Button

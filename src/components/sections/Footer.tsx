@@ -1,5 +1,4 @@
 import { getTranslations } from "next-intl/server";
-import { Link } from "@/i18n/navigation";
 import { Camera, Mail, MapPin, Phone } from "lucide-react";
 
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -37,9 +36,9 @@ function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 const explore = [
+  { key: "pictures", href: "#pictures" },
   { key: "about", href: "#about" },
   { key: "gallery", href: "#gallery" },
-  { key: "pictures", href: "/pictures", page: true },
   { key: "book", href: "#book" },
 ] as const;
 
@@ -60,7 +59,7 @@ export async function Footer() {
               <Camera className="h-4.5 w-4.5 text-ink" />
             </span>
             <span className="font-display text-xl font-bold tracking-tight text-paper">
-              Photo<span className="text-primary">Bus</span>
+              Photo<span className="text-primary">graph</span>
             </span>
           </a>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">
@@ -75,21 +74,12 @@ export async function Footer() {
           <ul className="mt-4 space-y-2.5">
             {explore.map((item) => (
               <li key={item.href}>
-                {"page" in item ? (
-                  <Link
-                    href={item.href}
-                    className="text-sm font-semibold text-white/80 transition-colors hover:text-primary"
-                  >
-                    {t(item.key)}
-                  </Link>
-                ) : (
-                  <a
-                    href={item.href}
-                    className="text-sm font-semibold text-white/80 transition-colors hover:text-primary"
-                  >
-                    {t(item.key)}
-                  </a>
-                )}
+                <a
+                  href={item.href}
+                  className="text-sm font-semibold text-white/80 transition-colors hover:text-primary"
+                >
+                  {t(item.key)}
+                </a>
               </li>
             ))}
           </ul>
@@ -103,10 +93,10 @@ export async function Footer() {
             <li className="flex items-center gap-2.5">
               <Mail className="h-4 w-4 text-primary" />
               <a
-                href="mailto:hello@photobus.ge"
+                href="mailto:hello@photograph.ge"
                 className="transition-colors hover:text-primary"
               >
-                hello@photobus.ge
+                hello@photograph.ge
               </a>
             </li>
             <li className="flex items-center gap-2.5">

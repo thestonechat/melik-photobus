@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
+import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 const BusModel = dynamic(() => import("@/components/three/BusModel"), {
@@ -35,7 +36,7 @@ export function Hero() {
         <div className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(0,0,0,0.045)_1px,transparent_1px)] [background-size:22px_22px]" />
       </div>
 
-      <div className="relative mx-auto grid min-h-[calc(100svh-4rem)] max-w-6xl items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-2 lg:gap-8">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-4 px-5 pb-6 pt-24 sm:px-8 lg:min-h-[min(calc(100svh-9rem),48rem)] lg:grid-cols-2 lg:gap-8 lg:pt-20">
         <motion.div
           variants={container}
           initial="hidden"
@@ -79,13 +80,22 @@ export function Hero() {
               {t("ctaBus")}
             </Button>
           </motion.div>
+
+          <motion.a
+            variants={item}
+            href="#pictures"
+            className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-ink underline decoration-primary decoration-2 underline-offset-4 transition-colors hover:text-primary-strong"
+          >
+            <Camera className="h-4 w-4 shrink-0 text-primary-strong" />
+            {t("ctaPictures")}
+          </motion.a>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.9, delay: 0.25, ease: "easeOut" }}
-          className="relative z-10 mt-20 h-[520px] sm:mt-16 sm:h-[560px] lg:mt-24 lg:h-[640px]"
+          className="relative z-10 h-[clamp(14rem,calc(100svh-38rem),26rem)] lg:h-[min(40rem,calc(100svh-17rem))]"
         >
           <BusModel />
         </motion.div>

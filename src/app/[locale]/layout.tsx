@@ -32,12 +32,12 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("description"),
-    metadataBase: new URL("https://photobus.ge"),
+    metadataBase: new URL("https://photograph.ge"),
     openGraph: {
       title: t("title"),
       description: t("description"),
-      url: "https://photobus.ge",
-      siteName: "PhotoBus",
+      url: "https://photograph.ge",
+      siteName: "Photograph",
       locale: locale === "ka" ? "ka_GE" : "en_US",
       type: "website",
     },
