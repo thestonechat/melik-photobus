@@ -10,13 +10,19 @@ const MAX_DPR: Record<Quality, number> = { 0: 1, 1: 1.5, 2: 2 };
 
 export const qualityDpr = (quality: Quality): [number, number] => [1, MAX_DPR[quality]];
 
-/** True only when the browser would give us a software rasterizer instead of a GPU. */
+const SOFTWARE_RENDERER = /swiftshader|llvmpipe|software|basic render/i;
+
+/** True when WebGL would run on the CPU: slow to draw, and every frame stalls the page. */
 function isSoftwareWebGL() {
   const context = document
     .createElement("canvas")
     .getContext("webgl2", { failIfMajorPerformanceCaveat: true });
-  context?.getExtension("WEBGL_lose_context")?.loseContext();
-  return !context;
+  if (!context) return true;
+  const debug = context.getExtension("WEBGL_debug_renderer_info");
+  const software =
+    !!debug && SOFTWARE_RENDERER.test(context.getParameter(debug.UNMASKED_RENDERER_WEBGL));
+  context.getExtension("WEBGL_lose_context")?.loseContext();
+  return software;
 }
 
 type NavigatorHints = Navigator & {
