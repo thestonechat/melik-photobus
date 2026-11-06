@@ -47,7 +47,7 @@ export function Navbar() {
             <BrandMark fg="var(--color-primary)" bg="var(--color-ink)" className="h-7 w-7" />
           </span>
           <span className="font-display text-xl font-bold tracking-tight text-ink">
-            Photo<span className="text-primary-strong">graph</span>
+            Photograph
           </span>
         </a>
 
