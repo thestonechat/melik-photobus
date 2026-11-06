@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, Suspense, useLayoutEffect, type ReactNode } from "react";
+import { Component, Suspense, useLayoutEffect, useState, type ReactNode } from "react";
 import * as THREE from "three";
 import { Camera } from "lucide-react";
 import { Canvas, useThree } from "@react-three/fiber";
@@ -29,6 +29,8 @@ function FitCamera() {
 }
 
 function BusScene() {
+  const [doorOpen, setDoorOpen] = useState(false);
+
   return (
     <Canvas
       flat
@@ -42,7 +44,7 @@ function BusScene() {
 
       <Suspense fallback={null}>
         <Float speed={1.6} rotationIntensity={0.25} floatIntensity={0.5}>
-          <PhotoBus />
+          <PhotoBus doorOpen={doorOpen} onToggleDoor={() => setDoorOpen((open) => !open)} />
         </Float>
         <mesh rotation-x={-Math.PI / 2} position-y={0.005} scale={[2.5, 1.15, 1]}>
           <circleGeometry args={[1, 48]} />
@@ -55,7 +57,7 @@ function BusScene() {
         target={CAMERA_TARGET}
         enableZoom={false}
         enablePan={false}
-        autoRotate
+        autoRotate={!doorOpen}
         autoRotateSpeed={1.4}
         minPolarAngle={Math.PI / 4}
         maxPolarAngle={Math.PI / 2.15}

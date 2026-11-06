@@ -1,81 +1,37 @@
-import type { ComponentProps, ReactNode } from "react";
-import * as THREE from "three";
-import { Line, Outlines } from "@react-three/drei";
+import { useState } from "react";
+import type { ThreeEvent } from "@react-three/fiber";
+import { Outlines, useCursor } from "@react-three/drei";
 import {
   COLORS,
   createBodyMaterial,
-  createCurtainTexture,
-  createGlassTexture,
   toonGradient,
   WHEEL_ARCH,
 } from "./busArt";
 import {
   bodyGeometry,
   bumperGeometry,
-  createPane,
   doorWindow,
   HALF_WIDTH,
-  HATCH_ANGLE,
-  HATCH_HINGE,
-  hatchWindow,
   rackPoints,
-  rearWindows,
+  rearWindow,
   rimGeometry,
   seams,
   SIDE_TILT,
   sideTrack,
   SILL,
-  tailOpening,
   WHEEL_RADIUS,
   windshield,
   windshieldCenter,
   windshieldNormal,
 } from "./busGeometry";
+import { Cabin, RearNook } from "./BusInterior";
+import { Hatch, HatchStrut, InkLine, Pane, SlidingDoor } from "./BusDoors";
 import { Headlight, HeadlightPool, RoofSign } from "./BusLights";
+import { Toon } from "./Toon";
 
-const bodyMaterial = createBodyMaterial();
-const curtainTexture = createCurtainTexture();
-const glassTexture = createGlassTexture();
+const DRAG_THRESHOLD_PX = 4;
 
-function Toon({
-  color,
-  outline = 0.024,
-  children,
-  ...mesh
-}: ComponentProps<"mesh"> & { color: string; outline?: number; children?: ReactNode }) {
-  return (
-    <mesh {...mesh}>
-      {children}
-      <meshToonMaterial color={color} gradientMap={toonGradient} />
-      <Outlines screenspace thickness={outline} color={COLORS.ink} />
-    </mesh>
-  );
-}
-
-function Pane({
-  pane,
-  children,
-  ...group
-}: ComponentProps<"group"> & { pane: ReturnType<typeof createPane>; children: ReactNode }) {
-  return (
-    <group {...group}>
-      <mesh geometry={pane.frame}>
-        <meshBasicMaterial color={COLORS.ink} />
-      </mesh>
-      <mesh geometry={pane.glass} position-z={0.012}>
-        {children}
-      </mesh>
-    </group>
-  );
-}
-
-/** Double-sided: fat lines are screen-space quads, so the mirrored flank would cull them. */
-function InkLine({
-  lineWidth = 1.6,
-  ...line
-}: Omit<ComponentProps<typeof Line>, "color" | "side">) {
-  return <Line {...line} color={COLORS.ink} lineWidth={lineWidth} side={THREE.DoubleSide} />;
-}
+const bodyMaterial = createBodyMaterial(true);
 
 function Wheel({ x }: { x: number }) {
   return (
@@ -91,29 +47,23 @@ function Wheel({ x }: { x: number }) {
 }
 
 /** Everything that exists once per flank; the bus renders it twice, mirrored. */
-function BusFlank() {
+function BusFlank({ doorOpen }: { doorOpen: boolean }) {
   return (
     <>
+      <Cabin />
       <group position={[0, SILL, HALF_WIDTH]} rotation-x={-SIDE_TILT}>
         <group position-y={-SILL}>
-          {rearWindows.map((pane, i) => (
-            <Pane key={i} pane={pane}>
-              <meshBasicMaterial map={curtainTexture} />
-            </Pane>
-          ))}
-          <Pane pane={doorWindow}>
-            <meshBasicMaterial map={glassTexture} />
-          </Pane>
+          <Pane pane={rearWindow} />
+          <Pane pane={doorWindow} />
+          <mesh position={[0.16, 1.07, 0.015]}>
+            <boxGeometry args={[0.15, 0.05, 0.03]} />
+            <meshBasicMaterial color={COLORS.ink} />
+          </mesh>
           {seams.map((points, i) => (
             <InkLine key={i} points={points.map(([x, y]) => [x, y, 0.004])} />
           ))}
           <InkLine points={sideTrack.map(([x, y]) => [x, y, 0.004])} lineWidth={4} />
-          {[-0.2, 0.16].map((x) => (
-            <mesh key={x} position={[x, 1.07, 0.015]}>
-              <boxGeometry args={[0.15, 0.05, 0.03]} />
-              <meshBasicMaterial color={COLORS.ink} />
-            </mesh>
-          ))}
+          <SlidingDoor open={doorOpen} />
         </group>
       </group>
 
@@ -129,33 +79,27 @@ function BusFlank() {
         <meshBasicMaterial color={COLORS.neon} />
       </mesh>
 
-      <InkLine
-        points={[
-          [-1.82, 1.4, 0.56],
-          [HATCH_HINGE[0] - 0.75, 2.22, 0.56],
-        ]}
-        lineWidth={2}
-      />
+      <HatchStrut open={doorOpen} />
     </>
   );
 }
 
-function OpenHatch() {
-  return (
-    <group position={[HATCH_HINGE[0], HATCH_HINGE[1], 0]} rotation-z={HATCH_ANGLE}>
-      <Toon color={COLORS.paper} position-x={-0.56}>
-        <boxGeometry args={[1.12, 0.05, 1.2]} />
-      </Toon>
-      <Pane pane={hatchWindow} position-y={0.027} rotation-x={-Math.PI / 2}>
-        <meshBasicMaterial map={glassTexture} />
-      </Pane>
-    </group>
-  );
-}
+export function PhotoBus({ doorOpen, onToggleDoor }: { doorOpen: boolean; onToggleDoor: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  useCursor(hovered);
 
-export function PhotoBus() {
+  const handleClick = (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation();
+    if (event.delta <= DRAG_THRESHOLD_PX) onToggleDoor();
+  };
+
   return (
-    <group position-x={0.3}>
+    <group
+      position-x={0.3}
+      onClick={handleClick}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+    >
       <mesh geometry={bodyGeometry} material={bodyMaterial}>
         <Outlines screenspace thickness={0.026} color={COLORS.ink} />
       </mesh>
@@ -180,23 +124,18 @@ export function PhotoBus() {
         position={[windshieldCenter.x, windshieldCenter.y, 0]}
         rotation-z={windshieldNormal.angle()}
       >
-        <Pane pane={windshield} rotation-y={Math.PI / 2}>
-          <meshBasicMaterial map={glassTexture} />
-        </Pane>
+        <Pane pane={windshield} rotation-y={Math.PI / 2} />
       </group>
 
-      <Pane pane={tailOpening} position-x={-1.855} rotation-y={-Math.PI / 2}>
-        <meshBasicMaterial map={curtainTexture} />
-      </Pane>
-
-      <BusFlank />
+      <RearNook />
+      <BusFlank doorOpen={doorOpen} />
       <group scale-z={-1}>
-        <BusFlank />
+        <BusFlank doorOpen={doorOpen} />
       </group>
 
       <InkLine segments points={rackPoints} lineWidth={2.4} />
       <RoofSign />
-      <OpenHatch />
+      <Hatch open={doorOpen} />
       <HeadlightPool />
     </group>
   );

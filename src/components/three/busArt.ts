@@ -10,9 +10,19 @@ export const COLORS = {
   neon: "#ff1a1a",
   neonOff: "#fecaca",
   neonAccent: "#f59e0b",
+  fabric: "#4c1130",
+  fabricBloom: "#be2d5b",
+  mirror: "#c9ced6",
 };
 
 export const WHEEL_ARCH = { axle: 1, y: 0.38, radius: 0.45 };
+/** L-shaped sliding door opening; the notch clears the rear wheel arch. */
+export const DOOR = { rear: -0.96, notch: -0.47, front: 0.02, notchTop: 1, bottom: 0.46, top: 1.84 };
+/** Trapezoid cut through the tail; half width narrows from `base` by `taper` per unit of height. */
+export const TAIL = { bottom: 0.92, top: 1.7, base: 0.6, taper: 0.077 };
+
+/** Written by the sliding doors each frame; 0 keeps the body solid. */
+export const doorCut = { value: 0 };
 
 /** Height of the line where the yellow lower body meets the white upper body. */
 const PAINT_SPLIT_GLSL = "1.1 - 0.04 * vPaint.x";
@@ -27,7 +37,16 @@ toonGradient.minFilter = THREE.NearestFilter;
 toonGradient.magFilter = THREE.NearestFilter;
 toonGradient.needsUpdate = true;
 
-export function createBodyMaterial() {
+const CUTOUTS_GLSL = `
+  bool inDoor = abs(vPaint.z) > 0.3 && vPaint.x > ${DOOR.rear.toFixed(2)} && vPaint.x < ${DOOR.front.toFixed(2)}
+    && vPaint.y > ${DOOR.bottom.toFixed(2)} && vPaint.y < ${DOOR.top.toFixed(2)}
+    && (vPaint.x > ${DOOR.notch.toFixed(2)} || vPaint.y > ${DOOR.notchTop.toFixed(2)});
+  bool inTail = vPaint.x < -1.6 && vPaint.y > ${TAIL.bottom.toFixed(2)} && vPaint.y < ${TAIL.top.toFixed(2)}
+    && abs(vPaint.z) < ${TAIL.base.toFixed(3)} - ${TAIL.taper.toFixed(3)} * (vPaint.y - ${TAIL.bottom.toFixed(2)});
+  if (inTail || (inDoor && doorCut > 0.0)) discard;`;
+
+/** `cutouts` punches the door and tail openings; panels riding on the body leave it off. */
+export function createBodyMaterial(cutouts: boolean) {
   const material = new THREE.MeshToonMaterial({ gradientMap: toonGradient });
   const lower = new THREE.Color(COLORS.primary);
   const upper = new THREE.Color(COLORS.paper);
@@ -37,14 +56,16 @@ export function createBodyMaterial() {
     shader.uniforms.lowerPaint = { value: lower };
     shader.uniforms.upperPaint = { value: upper };
     shader.uniforms.archLining = { value: archLining };
-    shader.vertexShader = `varying vec2 vPaint;\n${shader.vertexShader}`.replace(
+    shader.uniforms.doorCut = doorCut;
+    shader.vertexShader = `varying vec3 vPaint;\n${shader.vertexShader}`.replace(
       "#include <begin_vertex>",
-      "#include <begin_vertex>\nvPaint = position.xy;",
+      "#include <begin_vertex>\nvPaint = position;",
     );
     shader.fragmentShader =
-      `varying vec2 vPaint;\nuniform vec3 lowerPaint;\nuniform vec3 upperPaint;\nuniform vec3 archLining;\n${shader.fragmentShader}`.replace(
+      `varying vec3 vPaint;\nuniform float doorCut;\nuniform vec3 lowerPaint;\nuniform vec3 upperPaint;\nuniform vec3 archLining;\n${shader.fragmentShader}`.replace(
         "#include <color_fragment>",
         `#include <color_fragment>
+        ${cutouts ? CUTOUTS_GLSL : ""}
         float paintEdge = vPaint.y - (${PAINT_SPLIT_GLSL});
         float paintBlur = fwidth(paintEdge);
         diffuseColor.rgb = mix(lowerPaint, upperPaint, smoothstep(-paintBlur, paintBlur, paintEdge));
@@ -52,6 +73,7 @@ export function createBodyMaterial() {
         diffuseColor.rgb = mix(archLining, diffuseColor.rgb, step(0.0, archEdge));`,
       );
   };
+  material.customProgramCacheKey = () => `body-${cutouts}`;
   return material;
 }
 
@@ -78,17 +100,52 @@ function tiledTexture(size: number, draw: (ctx: CanvasRenderingContext2D) => voi
   return texture;
 }
 
-export function createCurtainTexture() {
-  const size = 480;
-  const cell = size / 12;
-  return tiledTexture(size, (ctx) => {
-    ctx.fillStyle = COLORS.primarySoft;
+/** Burgundy upholstery with pomegranate blooms, after the fabric lining the real bus. */
+export function createFabricTexture() {
+  const size = 512;
+  const texture = tiledTexture(size, (ctx) => {
+    ctx.fillStyle = COLORS.fabric;
     ctx.fillRect(0, 0, size, size);
-    for (let row = 2; row < 7; row++) {
-      for (let col = 0; col < 12; col++) {
-        ctx.fillStyle = (row + col) % 2 ? COLORS.ink : COLORS.paper;
-        ctx.fillRect(col * cell, row * cell, cell, cell);
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 4; col++) {
+        const x = (col + (row % 2) / 2) * (size / 4);
+        const y = (row + 0.5) * (size / 4);
+        ctx.fillStyle = COLORS.fabricBloom;
+        ctx.beginPath();
+        ctx.arc(x, y, 30, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = COLORS.primary;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.ellipse(x + 46, y - 30, 8, 20, 0.8, 0, Math.PI * 2);
+        ctx.stroke();
       }
+    }
+  });
+  texture.repeat.set(1.5, 1.5);
+  return texture;
+}
+
+export function createMirrorTexture() {
+  const [width, height] = [512, 420];
+  return canvasTexture(width, height, (ctx) => {
+    const silver = ctx.createLinearGradient(0, 0, width, height);
+    silver.addColorStop(0, COLORS.paper);
+    silver.addColorStop(0.45, COLORS.mirror);
+    silver.addColorStop(1, "#737373");
+    ctx.fillStyle = silver;
+    ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.65)";
+    for (const [start, band] of [
+      [110, 70],
+      [210, 22],
+    ]) {
+      ctx.beginPath();
+      ctx.moveTo(start, height);
+      ctx.lineTo(start + band, height);
+      ctx.lineTo(start + band + height * 0.6, 0);
+      ctx.lineTo(start + height * 0.6, 0);
+      ctx.fill();
     }
   });
 }
@@ -96,9 +153,9 @@ export function createCurtainTexture() {
 export function createGlassTexture() {
   const size = 256;
   return tiledTexture(size, (ctx) => {
-    ctx.fillStyle = COLORS.inkSoft;
+    ctx.fillStyle = COLORS.ink;
     ctx.fillRect(0, 0, size, size);
-    ctx.fillStyle = "#737373";
+    ctx.fillStyle = COLORS.inkSoft;
     ctx.beginPath();
     for (const [start, width] of [
       [40, 46],

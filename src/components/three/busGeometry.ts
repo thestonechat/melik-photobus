@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { toCreasedNormals } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { WHEEL_ARCH } from "./busArt";
+import { DOOR, TAIL, WHEEL_ARCH } from "./busArt";
 
 export type Point2 = [number, number];
 export type Point3 = [number, number, number];
@@ -14,8 +14,9 @@ export const WHEEL_RADIUS = 0.28;
 const LEAN = 0.13;
 export const SIDE_TILT = Math.atan(HALF_WIDTH * LEAN);
 export const RACK_Y = 2.14;
-export const HATCH_HINGE: Point2 = [-1.66, 1.98];
-export const HATCH_ANGLE = -0.32;
+/** Hatch pivot and tilt in each pose; the closed pose lies flat over the tail. */
+export const HATCH_OPEN = { pivot: [-1.66, 1.98] as Point2, angle: -0.32 };
+export const HATCH_CLOSED = { pivot: [-1.86, 1.9] as Point2, angle: 1.54 };
 
 function roundedShape(corners: Point2[], radius: number) {
   const points = corners.map(([x, y]) => new THREE.Vector2(x, y));
@@ -125,21 +126,56 @@ export const rimGeometry = createRimGeometry();
 export const bumperGeometry = createBumperGeometry();
 export const rackPoints = createRackPoints();
 
-export const rearWindows = [
-  createPane([[-1.58, 1.24], [-0.92, 1.24], [-0.92, 1.76], [-1.58, 1.76]]),
-  createPane([[-0.8, 1.24], [-0.06, 1.24], [-0.06, 1.76], [-0.8, 1.76]]),
-];
+export const rearWindow = createPane([[-1.58, 1.24], [-0.92, 1.24], [-0.92, 1.76], [-1.58, 1.76]]);
+export const slidingDoorWindow = createPane([[-0.8, 1.24], [-0.06, 1.24], [-0.06, 1.76], [-0.8, 1.76]]);
 export const doorWindow = createPane([[0.08, 1.24], [1.22, 1.24], [0.74, 1.76], [0.08, 1.76]]);
-export const windshield = createPane([[-0.6, -0.4], [0.6, -0.4], [0.53, 0.4], [-0.53, 0.4]], 0.1);
-export const hatchWindow = createPane([[-0.98, -0.46], [-0.16, -0.46], [-0.16, 0.46], [-0.98, 0.46]]);
-export const tailOpening = createPane([[-0.6, 0.92], [0.6, 0.92], [0.54, 1.7], [-0.54, 1.7]]);
+export const windshield = createPane([[-0.56, -0.36], [0.56, -0.36], [0.44, 0.36], [-0.44, 0.36]], 0.09);
+export const hatchWindow = createPane([[-0.74, -0.46], [-0.14, -0.46], [-0.14, 0.46], [-0.74, 0.46]]);
+
+function createTailFrame() {
+  const narrowTop = TAIL.base - TAIL.taper * (TAIL.top - TAIL.bottom);
+  const frame = roundedShape([[-0.63, 0.86], [0.63, 0.86], [0.57, 1.76], [-0.57, 1.76]], 0.1);
+  frame.holes.push(
+    roundedShape(
+      [[-TAIL.base, TAIL.bottom], [TAIL.base, TAIL.bottom], [narrowTop, TAIL.top], [-narrowTop, TAIL.top]],
+      0.07,
+    ),
+  );
+  return plate(frame);
+}
+export const tailFrame = createTailFrame();
 
 const windshieldSlope = new THREE.Vector2(0.95 - 1.58, 1.78 - 1.2).normalize();
 export const windshieldNormal = new THREE.Vector2(windshieldSlope.y, -windshieldSlope.x);
 export const windshieldCenter = new THREE.Vector2(1.265, 1.49).addScaledVector(windshieldNormal, BEVEL);
 
+export const doorOutline: Point2[] = [
+  [DOOR.front, DOOR.top],
+  [DOOR.rear, DOOR.top],
+  [DOOR.rear, DOOR.notchTop],
+  [DOOR.notch, DOOR.notchTop],
+  [DOOR.notch, DOOR.bottom],
+  [DOOR.front, DOOR.bottom],
+];
+export const doorPanel = plate(roundedShape(doorOutline, 0.02));
+
+/**
+ * Interior shell shaped to the leaning body, so its walls stay inside the paint.
+ */
+export function createRoomGeometry(rear: number, front: number, bottom: number, top: number) {
+  const inner = 0.02;
+  const outer = 0.76;
+  const geometry = new THREE.BoxGeometry(front - rear, top - bottom, outer - inner);
+  geometry.translate((front + rear) / 2, (top + bottom) / 2, (outer + inner) / 2);
+  const position = geometry.attributes.position;
+  for (let i = 0; i < position.count; i++) {
+    position.setZ(i, position.getZ(i) * (1 - LEAN * (position.getY(i) - SILL)));
+  }
+  return geometry;
+}
+
 export const seams: Point2[][] = [
   [[1.33, 0.72], [1.42, 1.2], [0.82, 1.84], [0.02, 1.84], [0.02, 0.46], [0.53, 0.46]],
-  [[0.02, 1.84], [-0.96, 1.84], [-0.96, 1], [-0.47, 1], [-0.47, 0.46], [0.02, 0.46]],
+  doorOutline,
 ];
 export const sideTrack: Point2[] = [[-1.72, 1], [-0.97, 1]];
