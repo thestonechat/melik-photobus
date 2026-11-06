@@ -119,7 +119,10 @@
     "error": "Something went wrong. Please try again in a moment.",
     "foundTitle": "{count, plural, one {# picture found} other {# pictures found}}",
     "download": "Download",
-    "photoAlt": "Photo {n}"
+    "photoAlt": "Photo {n}",
+    "guestTitle": "Your photos are ready",
+    "guestHint": "Tap Download to save them to your phone.",
+    "guestNotFoundHint": "If you've only just taken them, give it a moment and refresh this page."
   },
   "footer": {
     "blurb": "A classic photo booth on wheels, serving celebrations across Georgia — from Tbilisi to the coast.",

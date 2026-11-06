@@ -10,8 +10,8 @@ import {
 import { RACK_Y } from "./busGeometry";
 
 const neon = createNeonMaterials();
-const flareTexture = createGlowTexture(14);
-const poolTexture = createGlowTexture(0, 0);
+const flareTexture = createGlowTexture(14, true);
+const poolTexture = createGlowTexture(0, false);
 
 /** Short stutter every few seconds, like a tube with a tired transformer. */
 function neonBuzz(time: number) {
@@ -27,7 +27,7 @@ export function RoofSign() {
   });
 
   return (
-    <group position={[-0.2, RACK_Y + 0.33, 0]}>
+    <group position={[-0.15, RACK_Y + 0.33, 0]}>
       {[0, Math.PI].map((angle) => (
         <group key={angle} rotation-y={angle}>
           {[neon.steady, neon.flicker].map((material, i) => (
@@ -40,8 +40,8 @@ export function RoofSign() {
       <Line
         segments
         points={[
-          [-1.3, -0.26, 0],
-          [1.3, -0.26, 0],
+          [-1.42, -0.26, 0],
+          [1.42, -0.26, 0],
           [-0.85, -0.26, 0],
           [-0.85, -0.33, 0],
           [0.85, -0.26, 0],
@@ -66,7 +66,7 @@ export function Headlight() {
         <torusGeometry args={[0.15, 0.024, 10, 32]} />
         <meshBasicMaterial color={COLORS.ink} />
       </mesh>
-      <sprite position-z={0.14} scale={1.1}>
+      <sprite position-z={0.14} scale={0.95}>
         <spriteMaterial map={flareTexture} transparent depthWrite={false} />
       </sprite>
     </>
@@ -75,7 +75,7 @@ export function Headlight() {
 
 export function HeadlightPool() {
   return (
-    <mesh rotation-x={-Math.PI / 2} position={[2.5, 0.012, 0]} scale={[0.72, 1.05, 1]}>
+    <mesh rotation-x={-Math.PI / 2} position={[2, 0.012, 0]} scale={[0.52, 0.95, 1]}>
       <planeGeometry args={[2, 2]} />
       <meshBasicMaterial map={poolTexture} transparent depthWrite={false} opacity={0.75} />
     </mesh>

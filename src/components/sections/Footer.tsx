@@ -36,8 +36,8 @@ function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 const explore = [
-  { key: "pictures", href: "#pictures" },
   { key: "about", href: "#about" },
+  { key: "pictures", href: "#pictures" },
   { key: "gallery", href: "#gallery" },
   { key: "book", href: "#book" },
 ] as const;

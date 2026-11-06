@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "motion/react";
-import { Camera, Download, KeyRound, Loader2, Search } from "lucide-react";
+import { Camera, KeyRound, Loader2, Search } from "lucide-react";
+import { PhotoGrid } from "@/components/pictures/PhotoGrid";
 import { Button } from "@/components/ui/Button";
 
 type Status = "idle" | "loading" | "found" | "not-found" | "error";
@@ -29,7 +30,7 @@ export function PicturesFinder() {
         setPhotos(data.photos ?? []);
         setStatus(data.photos?.length ? "found" : "not-found");
       } else {
-        setStatus("not-found");
+        setStatus(res.status === 404 ? "not-found" : "error");
       }
     } catch {
       setStatus("error");
@@ -112,40 +113,7 @@ export function PicturesFinder() {
               <h3 className="font-display text-lg font-bold text-ink">
                 {t("foundTitle", { count: photos.length })}
               </h3>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                {photos.map((src, i) => (
-                  <motion.div
-                    key={src}
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.07, duration: 0.4, ease: "easeOut" }}
-                    className="overflow-hidden rounded-2xl border-2 border-ink bg-primary-faint shadow-[4px_4px_0_0_var(--color-ink)]"
-                  >
-                    <div className="aspect-[4/3] overflow-hidden bg-white">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={src}
-                        alt={t("photoAlt", { n: i + 1 })}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between gap-2 p-3">
-                      <span className="truncate text-xs font-bold text-ink-muted">
-                        {t("photoAlt", { n: i + 1 })}
-                      </span>
-                      <a
-                        href={src}
-                        download
-                        className="flex shrink-0 items-center gap-1.5 rounded-full border-2 border-ink bg-primary px-3 py-1.5 text-xs font-bold text-ink shadow-[2px_2px_0_0_var(--color-ink)] transition-all hover:-translate-y-0.5 hover:bg-primary-strong"
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                        {t("download")}
-                      </a>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+              <PhotoGrid photos={photos} />
             </motion.div>
           )}
 

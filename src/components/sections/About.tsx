@@ -114,7 +114,7 @@ export function About() {
   return (
     <section
       id="about"
-      className="relative scroll-mt-20 overflow-hidden bg-paper py-24 sm:py-32"
+      className="relative scroll-mt-20 overflow-hidden border-y-2 border-ink bg-primary-faint pb-24 pt-10 sm:pb-32"
     >
       <div
         aria-hidden="true"
@@ -125,6 +125,7 @@ export function About() {
 
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <SectionHeading
+          reveal={false}
           eyebrow={t("eyebrow")}
           title={
             <>

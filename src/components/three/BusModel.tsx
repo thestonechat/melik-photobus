@@ -11,7 +11,7 @@ import { PhotoBus } from "./PhotoBus";
 const CAMERA_TARGET = new THREE.Vector3(0, 1.25, 0);
 const CAMERA_FOV = 35;
 /** World-space half extents the camera must keep in frame at any orbit angle. */
-const FRAME_HALF_WIDTH = 2.9;
+const FRAME_HALF_WIDTH = 3.05;
 const FRAME_HALF_HEIGHT = 2;
 
 /** Picks the orbit distance per canvas aspect, so wide mobile canvases don't shrink the bus. */

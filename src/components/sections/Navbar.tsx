@@ -9,8 +9,8 @@ import { LocaleSwitcher } from "@/components/ui/LocaleSwitcher";
 import { cn } from "@/lib/utils";
 
 const links = [
-  { key: "pictures", href: "#pictures" },
   { key: "about", href: "#about" },
+  { key: "pictures", href: "#pictures" },
   { key: "gallery", href: "#gallery" },
   { key: "book", href: "#book" },
 ] as const;
@@ -81,7 +81,7 @@ export function Navbar() {
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
             className="overflow-hidden border-b-2 border-ink bg-white md:hidden"
           >

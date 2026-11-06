@@ -9,7 +9,7 @@ export const COLORS = {
   primarySoft: "#fef9c3",
   neon: "#ff1a1a",
   neonOff: "#fecaca",
-  dome: "#f59e0b",
+  neonAccent: "#f59e0b",
 };
 
 export const WHEEL_ARCH = { axle: 1, y: 0.38, radius: 0.45 };
@@ -124,10 +124,11 @@ const SIGN_LETTERS = [
   { path: "M35 0a35 35 0 0 1 35 35v30a35 35 0 0 1-70 0V35A35 35 0 0 1 35 0z", width: 70 },
   { path: "M70 20C60-8 4-8 3 26C2 58 72 44 72 76C72 108 8 108 0 78", width: 72 },
 ];
-const SIGN_DOME = "M-36 100a36 36 0 0 1 72 0zM0 46V30M-34 58-45 47M34 58 45 47";
+const SIGN_CAMERA =
+  "M12 24H28l9-20H63l9 20H88a12 12 0 0 1 12 12V88a12 12 0 0 1-12 12H12a12 12 0 0 1-12-12V36a12 12 0 0 1 12-12zM50 42a20 20 0 1 0 0 40a20 20 0 1 0 0-40z";
 const FLICKER_LETTER = 3;
 const LETTER_GAP = 24;
-const DOME_ADVANCE = 62;
+const CAMERA_WIDTH = 100;
 const SIGN_CANVAS = { width: 2560, height: 800 };
 /** World size of the sign layers; matches the canvas aspect so tubes are not stretched. */
 export const SIGN_PLANE = { width: 3.3, height: (3.3 * SIGN_CANVAS.height) / SIGN_CANVAS.width };
@@ -164,10 +165,10 @@ function forEachLetter(
     0,
     0,
     unit,
-    (SIGN_CANVAS.width - (wordWidth + DOME_ADVANCE) * unit) / 2,
+    (SIGN_CANVAS.width - (wordWidth + CAMERA_WIDTH) * unit) / 2,
     (SIGN_CANVAS.height - LETTER_HEIGHT) / 2,
   );
-  ctx.translate(DOME_ADVANCE + LETTER_GAP, 0);
+  ctx.translate(CAMERA_WIDTH + LETTER_GAP, 0);
   SIGN_LETTERS.forEach((letter, index) => {
     draw(new Path2D(letter.path), index);
     ctx.translate(letter.width + LETTER_GAP, 0);
@@ -185,8 +186,8 @@ export function createNeonMaterials() {
     forEachLetter(ctx, (path, index) => {
       if (index === 0) {
         ctx.save();
-        ctx.translate(-DOME_ADVANCE, 0);
-        drawTube(ctx, new Path2D(SIGN_DOME), COLORS.dome);
+        ctx.translate(-(CAMERA_WIDTH + LETTER_GAP), 0);
+        drawTube(ctx, new Path2D(SIGN_CAMERA), COLORS.neonAccent);
         ctx.restore();
       }
       if (index === FLICKER_LETTER) {
@@ -207,7 +208,7 @@ export function createNeonMaterials() {
   return { steady, flicker };
 }
 
-export function createGlowTexture(rays: number, core = 1) {
+export function createGlowTexture(rays: number, hotCore: boolean) {
   const size = 512;
   const center = size / 2;
   return canvasTexture(size, size, (ctx) => {
@@ -229,8 +230,8 @@ export function createGlowTexture(rays: number, core = 1) {
       ctx.restore();
     }
     const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, center);
-    glow.addColorStop(0, `rgba(255, 255, 255, ${core})`);
-    glow.addColorStop(0.12, `rgba(250, 204, 21, ${0.4 + 0.5 * core})`);
+    glow.addColorStop(0, hotCore ? "rgba(255, 255, 255, 1)" : "rgba(250, 204, 21, 0.5)");
+    glow.addColorStop(0.12, `rgba(250, 204, 21, ${hotCore ? 0.9 : 0.5})`);
     glow.addColorStop(0.4, "rgba(250, 204, 21, 0.4)");
     glow.addColorStop(1, "rgba(250, 204, 21, 0)");
     ctx.fillStyle = glow;

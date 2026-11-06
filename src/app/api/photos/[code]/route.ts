@@ -1,17 +1,25 @@
 import { NextResponse } from "next/server";
-import { pictureManifest } from "@/data/pictures";
+import { getPhotos, normalizeCode } from "@/lib/photos";
+
+const headers = { "Cache-Control": "private, no-store" };
 
 export async function GET(
   _request: Request,
   { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
-  const key = code.trim().toUpperCase();
-  const photos = pictureManifest[key];
+  const key = normalizeCode(code);
+  const photos = await getPhotos(key);
 
-  if (!photos || photos.length === 0) {
-    return NextResponse.json({ code: key, photos: [] }, { status: 404 });
+  if (!photos) {
+    return NextResponse.json(
+      { code: key, photos: [], error: "storage_unavailable" },
+      { status: 503, headers },
+    );
   }
 
-  return NextResponse.json({ code: key, photos });
+  return NextResponse.json(
+    { code: key, photos },
+    { status: photos.length > 0 ? 200 : 404, headers },
+  );
 }

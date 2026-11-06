@@ -21,8 +21,8 @@ export default async function Home({
       <Navbar />
       <main>
         <Hero />
-        <Pictures />
         <About />
+        <Pictures />
         <Gallery />
         <Booking />
       </main>
