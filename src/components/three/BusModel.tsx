@@ -1,12 +1,13 @@
 "use client";
 
-import { Component, Suspense, useLayoutEffect, useState, type ReactNode } from "react";
+import { Suspense, useLayoutEffect, useState } from "react";
 import * as THREE from "three";
 import { Camera } from "lucide-react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Float, OrbitControls } from "@react-three/drei";
 import { COLORS } from "./busArt";
 import { PhotoBus } from "./PhotoBus";
+import { WebGLBoundary } from "./WebGLBoundary";
 
 const CAMERA_TARGET = new THREE.Vector3(0, 1.25, 0);
 const CAMERA_FOV = 35;
@@ -66,22 +67,6 @@ function BusScene() {
   );
 }
 
-class BusErrorBoundary extends Component<
-  { fallback: ReactNode; children: ReactNode },
-  { hasError: boolean }
-> {
-  state = { hasError: false };
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) return this.props.fallback;
-    return this.props.children;
-  }
-}
-
 const fallback = (
   <div className="flex h-full w-full items-center justify-center">
     <div className="flex flex-col items-center gap-4 text-center">
@@ -97,8 +82,8 @@ const fallback = (
 
 export default function BusModel() {
   return (
-    <BusErrorBoundary fallback={fallback}>
+    <WebGLBoundary fallback={fallback}>
       <BusScene />
-    </BusErrorBoundary>
+    </WebGLBoundary>
   );
 }

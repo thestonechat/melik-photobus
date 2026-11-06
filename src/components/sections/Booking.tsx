@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "motion/react";
 import { DayPicker } from "@daypicker/react";
@@ -12,6 +12,7 @@ import {
   MapPin,
   PartyPopper,
   Send,
+  Sparkles,
   User,
 } from "lucide-react";
 import { enUS, ka } from "date-fns/locale";
@@ -20,6 +21,7 @@ import type { Locale } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SparkleButton } from "@/components/ui/SparkleButton";
+import { sendBookingRequest } from "@/lib/bookingRequest";
 import { cn } from "@/lib/utils";
 
 interface BookingForm {
@@ -35,6 +37,9 @@ const initialForm: BookingForm = {
   address: "",
   eventType: "",
 };
+
+const services = ["bus", "spin"] as const;
+type Service = (typeof services)[number];
 
 type FieldErrors = Partial<Record<keyof BookingForm | "date", string>>;
 
@@ -78,10 +83,21 @@ export function Booking() {
   const [range, setRange] = useState<DateRange | undefined>(undefined);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [service, setService] = useState<Service>("bus");
+  const [sendFailed, setSendFailed] = useState(false);
 
   const dpLocale = useMemo(() => (locale === "ka" ? ka : enUS), [locale]);
   const summaryDate = range ? formatRange(range, dpLocale, true) : null;
   const shortDate = range ? formatRange(range, dpLocale, false) : null;
+
+  useEffect(() => {
+    const syncService = () => {
+      if (window.location.hash === "#book-spin") setService("spin");
+    };
+    syncService();
+    window.addEventListener("hashchange", syncService);
+    return () => window.removeEventListener("hashchange", syncService);
+  }, []);
 
   const setField = (field: keyof BookingForm, value: string) => {
     setForm((f) => ({ ...f, [field]: value }));
@@ -93,7 +109,7 @@ export function Booking() {
     setErrors((e) => ({ ...e, date: undefined }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!range?.from) {
       setErrors((prev) => ({ ...prev, date: t("errors.date") }));
@@ -113,10 +129,15 @@ export function Booking() {
     if (Object.keys(nextErrors).length > 0) return;
 
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitted(true);
-      setSubmitting(false);
-    }, 450);
+    setSendFailed(false);
+    const sent = await sendBookingRequest({
+      ...form,
+      service,
+      dates: formatRange(range, enUS, true) ?? "",
+    });
+    setSubmitting(false);
+    if (sent) setSubmitted(true);
+    else setSendFailed(true);
   };
 
   const reset = () => {
@@ -132,6 +153,7 @@ export function Booking() {
       id="book"
       className="relative scroll-mt-20 overflow-hidden bg-paper py-24 sm:py-32"
     >
+      <span id="book-spin" className="absolute top-0 scroll-mt-20" />
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -right-24 top-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl"
@@ -146,13 +168,13 @@ export function Booking() {
           eyebrow={t("eyebrow")}
           title={
             <>
-              {t("title1")}
+              {service === "spin" ? t("title1Spin") : t("title1")}
               <br />
               {t("title2")}{" "}
               <span className="text-primary-strong">{t("accent")}</span>
             </>
           }
-          description={t("description")}
+          description={service === "spin" ? t("descriptionSpin") : t("description")}
         />
 
         <div className="mt-14 grid items-start gap-8 lg:grid-cols-5">
@@ -177,6 +199,10 @@ export function Booking() {
                   </p>
                   <ul className="mx-auto mt-6 max-w-sm space-y-2 rounded-2xl border-2 border-ink bg-white/70 p-5 text-left text-sm font-semibold text-ink backdrop-blur-sm">
                     <li className="flex items-start gap-3">
+                      <Sparkles className="mt-0.5 h-4 w-4 shrink-0" />
+                      {t(`service.${service}`)}
+                    </li>
+                    <li className="flex items-start gap-3">
                       <CalendarDays className="mt-0.5 h-4 w-4 shrink-0" />
                       {summaryDate ?? t("success.dateFallback")}
                     </li>
@@ -190,7 +216,9 @@ export function Booking() {
                     </li>
                   </ul>
                   <p className="mt-5 text-sm font-medium text-ink/70">
-                    {t("success.confirm", { email: form.email.trim() })}
+                    {t(service === "spin" ? "success.confirmSpin" : "success.confirm", {
+                      email: form.email.trim(),
+                    })}
                   </p>
                   <button
                     type="button"
@@ -221,7 +249,29 @@ export function Booking() {
                     {t("requiredHint")}
                   </p>
 
-                  <div className="mt-6 space-y-5">
+                  <fieldset className="mt-6">
+                    <legend className="mb-1.5 text-sm font-bold text-ink">
+                      {t("service.label")}
+                    </legend>
+                    <div className="grid grid-cols-2 gap-2">
+                      {services.map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          aria-pressed={service === option}
+                          onClick={() => setService(option)}
+                          className={cn(
+                            "rounded-xl border-2 border-ink px-3 py-2.5 text-sm font-bold text-ink transition-colors",
+                            service === option ? "bg-primary" : "bg-white hover:bg-primary-faint",
+                          )}
+                        >
+                          {t(`service.${option}`)}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+
+                  <div className="mt-5 space-y-5">
                     <div>
                       <label
                         htmlFor="name"
@@ -323,6 +373,12 @@ export function Booking() {
                     <Send className="h-4 w-4" />
                     {range?.from ? t("submitRange") : t("submitSingle")}
                   </SparkleButton>
+
+                  {sendFailed && (
+                    <p role="alert" className="mt-4 text-center text-sm font-bold text-ink">
+                      {t("errors.send")}
+                    </p>
+                  )}
 
                   <p className="mt-4 text-center text-xs text-ink-muted">
                     {t("noPayment")}

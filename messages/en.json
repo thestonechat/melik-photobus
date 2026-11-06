@@ -10,7 +10,8 @@
     "book": "Book Now",
     "cta": "Book the Bus",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "spin": "360 Spin"
   },
   "localeSwitcher": {
     "switchToEn": "Switch to English",
@@ -50,9 +51,18 @@
       "text": "Street fairs, concerts, school events — we park up wherever the good times are."
     },
     "stats": {
-      "map": { "value": "All of Georgia", "label": "From Tbilisi to Batumi" },
-      "studio": { "value": "Studio on wheels", "label": "Set up in minutes" },
-      "keepsakes": { "value": "Instant keepsakes", "label": "A printed souvenir, every time" }
+      "map": {
+        "value": "All of Georgia",
+        "label": "From Tbilisi to Batumi"
+      },
+      "studio": {
+        "value": "Studio on wheels",
+        "label": "Set up in minutes"
+      },
+      "keepsakes": {
+        "value": "Instant keepsakes",
+        "label": "A printed souvenir, every time"
+      }
     }
   },
   "gallery": {
@@ -88,7 +98,8 @@
       "emailInvalid": "That email doesn't look right.",
       "address": "Where should the bus roll up to?",
       "eventType": "Tell us what you're celebrating.",
-      "date": "Pick at least one date from the calendar."
+      "date": "Pick at least one date from the calendar.",
+      "send": "We couldn't send your request. Please try again, or email us at hello@photobus.ge."
     },
     "submitSingle": "Request this date",
     "submitRange": "Request these dates",
@@ -101,8 +112,16 @@
       "thanks": "Thanks, {name}. Here's what we noted:",
       "dateFallback": "Date to be confirmed",
       "confirm": "We'll confirm your booking at {email} within 24 hours.",
-      "another": "Book another date"
-    }
+      "another": "Book another date",
+      "confirmSpin": "We'll send your price to {email} within 24 hours."
+    },
+    "service": {
+      "label": "What would you like?",
+      "bus": "Photo bus",
+      "spin": "360 Spin"
+    },
+    "title1Spin": "Rent the 360 Spin",
+    "descriptionSpin": "Tell us where and when, and we'll reply within 24 hours with availability and a price."
   },
   "pictures": {
     "eyebrow": "Your pictures",
@@ -136,9 +155,35 @@
     "followText": "Fresh photos and road updates from every event.",
     "location": "Tbilisi, Georgia — rolling everywhere",
     "rights": "© {year} Photograph. All rights reserved.",
-    "madeWith": "Made with love in Georgia"
+    "madeWith": "Made with love in Georgia",
+    "spin": "360 Spin"
   },
   "bus3d": {
     "fallback": "The 3D bus needs WebGL — here's a photo placeholder instead."
+  },
+  "spin": {
+    "eyebrow": "360 Spin",
+    "title1": "Step on.",
+    "title2": "We orbit you.",
+    "description": "Our 360 video platform: stand on it, and a camera sweeps around you to record a slow-motion clip made for sharing. Rent it for your event.",
+    "cta": "Request a price",
+    "priceHint": "Send us your date and venue and we'll reply with a price.",
+    "badge": "Step on · Spin · Share · ",
+    "phoneRec": "Rec",
+    "phoneSpeed": "0.5x",
+    "steps": {
+      "stand": {
+        "title": "Stand on the platform",
+        "text": "Solo, with a partner or with your friends. Strike a pose."
+      },
+      "spin": {
+        "title": "The camera circles you",
+        "text": "The arm sweeps a full 360° around you and records the whole time."
+      },
+      "share": {
+        "title": "Get your video",
+        "text": "A ready-to-post clip that makes your event look like a film."
+      }
+    }
   }
 }

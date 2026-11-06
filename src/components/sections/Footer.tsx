@@ -39,6 +39,7 @@ const explore = [
   { key: "about", href: "#about" },
   { key: "pictures", href: "#pictures" },
   { key: "gallery", href: "#gallery" },
+  { key: "spin", href: "#spin" },
   { key: "book", href: "#book" },
 ] as const;
 
