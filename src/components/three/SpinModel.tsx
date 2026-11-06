@@ -1,9 +1,12 @@
 "use client";
 
-import { useRef } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
-import { useInView, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
+import { spinFeed } from "@/components/spin/spinFeed";
+import { detectQuality, qualityDpr, useSceneVisible } from "./quality";
+import { QualityMonitor } from "./QualityMonitor";
 import { WebGLBoundary } from "./WebGLBoundary";
 import { Backdrop } from "./spin/Backdrop";
 import { Confetti } from "./spin/Confetti";
@@ -52,22 +55,29 @@ function Show() {
   );
 }
 
-export default function SpinModel() {
-  const root = useRef<HTMLDivElement>(null);
-  const inView = useInView(root);
+/** `stageRef` wraps the card and the phone: the scene paints both, so either keeps it awake. */
+export default function SpinModel({ stageRef }: { stageRef: RefObject<HTMLElement | null> }) {
+  const visible = useSceneVisible(stageRef);
   const reducedMotion = useReducedMotion();
-  const animated = inView ? "always" : "never";
+  const animated = visible ? "always" : "never";
+  const [ceiling] = useState(detectQuality);
+  const [quality, setQuality] = useState(ceiling);
+
+  useEffect(() => {
+    spinFeed.quality = quality;
+  }, [quality]);
 
   return (
-    <div ref={root} className="h-full w-full">
+    <div className="h-full w-full">
       <WebGLBoundary fallback={null}>
         <Canvas
           flat
-          dpr={[1, 2]}
+          dpr={qualityDpr(quality)}
           frameloop={reducedMotion ? "demand" : animated}
           camera={{ position: [CAMERA.x, CAMERA.y, CAMERA.z], fov: 32 }}
-          gl={{ antialias: true, alpha: true }}
+          gl={{ antialias: ceiling > 0, alpha: true }}
         >
+          <QualityMonitor ceiling={ceiling} onChange={setQuality} />
           <ambientLight intensity={2} color="#ffedd5" />
           <directionalLight position={[3, 7, 6]} intensity={1} />
           <Show />

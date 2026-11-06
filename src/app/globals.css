@@ -18,6 +18,44 @@
   --color-paper-soft: #fafafa;
 
   --animate-float-slow: float 7s ease-in-out infinite;
+  --animate-rise-in: rise-in 0.7s ease-out both;
+  --animate-fade-in: fade-in 0.9s ease-out 0.25s both;
+  --animate-drop-in: drop-in 0.6s ease-out both;
+  --animate-sparkle: sparkle 1.6s ease-in-out infinite both;
+
+  @keyframes rise-in {
+    from {
+      opacity: 0;
+      transform: translateY(28px);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes drop-in {
+    from {
+      opacity: 0;
+      transform: translateY(-80px);
+    }
+  }
+
+  @keyframes sparkle {
+    0% {
+      opacity: 0;
+      transform: translateY(2px) scale(0.3) rotate(var(--rot));
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-26px) scale(1) rotate(calc(var(--rot) + 160deg));
+    }
+  }
 
   @keyframes float {
     0%,

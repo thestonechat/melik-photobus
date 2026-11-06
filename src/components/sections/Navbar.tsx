@@ -30,14 +30,11 @@ export function Navbar() {
   }, []);
 
   return (
-    <motion.header
-      initial={{ y: -80, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+    <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+        "fixed inset-x-0 top-0 z-50 animate-drop-in transition-colors duration-300",
         scrolled
-          ? "border-b-2 border-ink bg-white/80 backdrop-blur-md"
+          ? "border-b-2 border-ink bg-white/95"
           : "bg-transparent",
       )}
     >
@@ -113,6 +110,6 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
   );
 }

@@ -1,11 +1,13 @@
 "use client";
 
+import { useRef } from "react";
 import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
 import { Footprints, Send, Share2, Video } from "lucide-react";
 import { SpinBadge } from "@/components/spin/SpinBadge";
 import { SpinPhone } from "@/components/spin/SpinPhone";
+import { LazyScene } from "@/components/three/LazyScene";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
@@ -19,13 +21,14 @@ const steps = [
 
 export function Spin() {
   const t = useTranslations("spin");
+  const stage = useRef<HTMLDivElement>(null);
 
   return (
     <section id="spin" className="relative scroll-mt-20 overflow-hidden bg-ink py-20 sm:py-28">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,rgba(250,204,21,0.14)_1px,transparent_1px)] [background-size:22px_22px]" />
 
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-2">
+        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-12">
           <div>
             <SectionHeading
               tone="dark"
@@ -47,14 +50,16 @@ export function Spin() {
             <p className="mt-4 text-sm text-paper/60">{t("priceHint")}</p>
           </div>
 
-          <div className="relative pb-10 pr-6 sm:pr-10">
+          <div ref={stage} className="relative min-w-0 lg:pb-10 lg:pr-10">
             <div className="relative aspect-square overflow-hidden rounded-[2rem] border-2 border-paper bg-primary shadow-[8px_8px_0_0_var(--color-primary-strong)]">
-              <SpinModel />
-              <div className="absolute left-4 top-4">
+              <LazyScene>
+                <SpinModel stageRef={stage} />
+              </LazyScene>
+              <div className="absolute left-3 top-3 sm:left-4 sm:top-4">
                 <SpinBadge text={t("badge")} />
               </div>
             </div>
-            <div className="absolute bottom-0 right-0">
+            <div className="relative z-10 -mt-12 flex justify-center sm:-mt-20 lg:absolute lg:bottom-0 lg:right-0 lg:mt-0">
               <SpinPhone label={t("phoneRec")} speed={t("phoneSpeed")} />
             </div>
           </div>

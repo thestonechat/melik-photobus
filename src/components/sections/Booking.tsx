@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import dynamic from "next/dynamic";
 import { useLocale, useTranslations } from "next-intl";
-import { AnimatePresence, motion } from "motion/react";
-import { DayPicker } from "@daypicker/react";
+import { AnimatePresence, motion, useInView } from "motion/react";
 import "@daypicker/react/style.css";
 import {
   CalendarDays,
@@ -15,7 +15,8 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
-import { enUS, ka } from "date-fns/locale";
+import { enUS } from "date-fns/locale/en-US";
+import { ka } from "date-fns/locale/ka";
 import { format, isSameDay, isSameMonth, isSameYear } from "date-fns";
 import type { Locale } from "date-fns";
 import type { DateRange } from "react-day-picker";
@@ -46,7 +47,15 @@ type FieldErrors = Partial<Record<keyof BookingForm | "date", string>>;
 const inputStyles =
   "w-full rounded-xl border-2 border-ink bg-white px-4 py-3 text-ink placeholder:text-ink-faint transition-colors focus:border-primary-strong focus:bg-primary-faint focus:outline-none";
 
+/** The calendar's chunk is heavy and sits far below the fold: fetch it on approach. */
+const DayPicker = dynamic(() => import("@daypicker/react").then((module) => module.DayPicker), {
+  ssr: false,
+  loading: () => <div className="h-85" />,
+});
+const CALENDAR_MARGIN = "800px";
+
 const today = new Date();
+const subscribeToNothing = () => () => {};
 
 function formatRange(
   range: DateRange | undefined,
@@ -85,6 +94,16 @@ export function Booking() {
   const [submitting, setSubmitting] = useState(false);
   const [service, setService] = useState<Service>("bus");
   const [sendFailed, setSendFailed] = useState(false);
+
+  /** Null on the server: "today" must come from the visitor's clock, not the build's. */
+  const clientToday = useSyncExternalStore(
+    subscribeToNothing,
+    () => today,
+    () => null,
+  );
+
+  const calendarSlot = useRef<HTMLDivElement>(null);
+  const calendarNear = useInView(calendarSlot, { once: true, margin: CALENDAR_MARGIN });
 
   const dpLocale = useMemo(() => (locale === "ka" ? ka : enUS), [locale]);
   const summaryDate = range ? formatRange(range, dpLocale, true) : null;
@@ -156,11 +175,11 @@ export function Booking() {
       <span id="book-spin" className="absolute top-0 scroll-mt-20" />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -right-24 top-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl"
+        className="pointer-events-none absolute -right-36 top-12 h-104 w-104 bg-radial from-primary/25 to-transparent to-70%"
       />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -left-24 bottom-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl"
+        className="pointer-events-none absolute -left-36 bottom-12 h-96 w-96 bg-radial from-primary/20 to-transparent to-70%"
       />
 
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
@@ -407,23 +426,27 @@ export function Booking() {
                   </span>
                 </div>
 
-                <div className="mt-5 flex justify-center">
-                  <DayPicker
-                    mode="range"
-                    selected={range}
-                    onSelect={handleSelect}
-                    disabled={{ before: today }}
-                    locale={dpLocale}
-                    labels={{
-                      labelPrevious: () => t("prevMonth"),
-                      labelNext: () => t("nextMonth"),
-                    }}
-                    animate
-                    defaultMonth={today}
-                    modifiersClassNames={{
-                      today: "today",
-                    }}
-                  />
+                <div ref={calendarSlot} className="mt-5 flex justify-center">
+                  {clientToday && calendarNear ? (
+                    <DayPicker
+                      mode="range"
+                      selected={range}
+                      onSelect={handleSelect}
+                      disabled={{ before: today }}
+                      locale={dpLocale}
+                      labels={{
+                        labelPrevious: () => t("prevMonth"),
+                        labelNext: () => t("nextMonth"),
+                      }}
+                      animate
+                      defaultMonth={today}
+                      modifiersClassNames={{
+                        today: "today",
+                      }}
+                    />
+                  ) : (
+                    <div className="h-85" />
+                  )}
                 </div>
 
                 <AnimatePresence>

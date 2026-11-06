@@ -51,7 +51,7 @@ export async function Footer() {
     <footer className="relative overflow-hidden border-t-2 border-ink bg-ink text-paper">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full bg-primary/10 blur-3xl"
+        className="pointer-events-none absolute -top-36 -right-12 h-96 w-96 bg-radial from-primary/10 to-transparent to-70%"
       />
 
       <div className="relative mx-auto grid max-w-6xl gap-12 px-5 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-4">

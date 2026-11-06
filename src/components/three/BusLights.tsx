@@ -27,7 +27,7 @@ export function RoofSign() {
   });
 
   return (
-    <group position={[-0.15, RACK_Y + 0.33, 0]}>
+    <group position={[-0.37, RACK_Y + 0.33, 0]}>
       {[0, Math.PI].map((angle) => (
         <group key={angle} rotation-y={angle}>
           {[neon.steady, neon.flicker].map((material, i) => (
@@ -40,8 +40,8 @@ export function RoofSign() {
       <Line
         segments
         points={[
-          [-1.42, -0.26, 0],
-          [1.42, -0.26, 0],
+          [-1.3, -0.26, 0],
+          [1.3, -0.26, 0],
           [-0.85, -0.26, 0],
           [-0.85, -0.33, 0],
           [0.85, -0.26, 0],
@@ -64,9 +64,9 @@ export function Headlight() {
       </mesh>
       <mesh>
         <torusGeometry args={[0.15, 0.024, 10, 32]} />
-        <meshBasicMaterial color={COLORS.ink} />
+        <meshBasicMaterial color={COLORS.steel} />
       </mesh>
-      <sprite position-z={0.14} scale={0.95}>
+      <sprite position-z={0.14} scale={0.7}>
         <spriteMaterial map={flareTexture} transparent depthWrite={false} />
       </sprite>
     </>
@@ -75,7 +75,7 @@ export function Headlight() {
 
 export function HeadlightPool() {
   return (
-    <mesh rotation-x={-Math.PI / 2} position={[2, 0.012, 0]} scale={[0.52, 0.95, 1]}>
+    <mesh rotation-x={-Math.PI / 2} position={[2.14, 0.012, 0]} scale={[0.52, 0.95, 1]}>
       <planeGeometry args={[2, 2]} />
       <meshBasicMaterial map={poolTexture} transparent depthWrite={false} opacity={0.75} />
     </mesh>

@@ -12,12 +12,15 @@ import {
   bumperGeometry,
   doorWindow,
   HALF_WIDTH,
-  rackPoints,
+  rackFeet,
+  rackFrame,
+  rackSlats,
+  RACK_Y,
   rearWindow,
   rimGeometry,
   seams,
   SIDE_TILT,
-  sideTrack,
+  SIDE_TRACK,
   SILL,
   WHEEL_RADIUS,
   windshield,
@@ -25,22 +28,29 @@ import {
   windshieldNormal,
 } from "./busGeometry";
 import { Cabin, RearNook } from "./BusInterior";
-import { Hatch, HatchStrut, InkLine, Pane, SlidingDoor } from "./BusDoors";
+import { Handle, Hatch, HatchStrut, InkLine, Pane, SlidingDoor } from "./BusDoors";
 import { Headlight, HeadlightPool, RoofSign } from "./BusLights";
 import { Toon } from "./Toon";
 
 const DRAG_THRESHOLD_PX = 4;
 
+/** Keeps the long open hatch and the nose equally clear of the canvas edge when orbiting. */
+const BUS_OFFSET_X = 0.46;
+
 const bodyMaterial = createBodyMaterial(true);
 
 function Wheel({ x }: { x: number }) {
   return (
-    <group position={[x, WHEEL_RADIUS, 0.66]}>
+    <group position={[x, WHEEL_RADIUS, 0.64]}>
       <Toon color={COLORS.inkSoft} rotation-x={Math.PI / 2}>
         <cylinderGeometry args={[WHEEL_RADIUS, WHEEL_RADIUS, 0.26, 40]} />
       </Toon>
       <mesh geometry={rimGeometry} position-z={0.13}>
-        <meshToonMaterial color={COLORS.paperSoft} gradientMap={toonGradient} />
+        <meshToonMaterial color={COLORS.steel} gradientMap={toonGradient} />
+      </mesh>
+      <mesh position-z={0.15} rotation-x={Math.PI / 2}>
+        <cylinderGeometry args={[0.07, 0.08, 0.03, 24]} />
+        <meshToonMaterial color={COLORS.steelDeep} gradientMap={toonGradient} />
       </mesh>
     </group>
   );
@@ -55,14 +65,14 @@ function BusFlank({ doorOpen }: { doorOpen: boolean }) {
         <group position-y={-SILL}>
           <Pane pane={rearWindow} />
           <Pane pane={doorWindow} />
-          <mesh position={[0.16, 1.07, 0.015]}>
-            <boxGeometry args={[0.15, 0.05, 0.03]} />
-            <meshBasicMaterial color={COLORS.ink} />
-          </mesh>
+          <Handle x={0.22} />
           {seams.map((points, i) => (
             <InkLine key={i} points={points.map(([x, y]) => [x, y, 0.004])} />
           ))}
-          <InkLine points={sideTrack.map(([x, y]) => [x, y, 0.004])} lineWidth={4} />
+          <mesh position={[(SIDE_TRACK.rear + SIDE_TRACK.front) / 2, SIDE_TRACK.y, 0.006]}>
+            <boxGeometry args={[SIDE_TRACK.front - SIDE_TRACK.rear, 0.04, 0.012]} />
+            <meshBasicMaterial color={COLORS.ink} />
+          </mesh>
           <SlidingDoor open={doorOpen} />
         </group>
       </group>
@@ -70,14 +80,13 @@ function BusFlank({ doorOpen }: { doorOpen: boolean }) {
       <Wheel x={WHEEL_ARCH.axle} />
       <Wheel x={-WHEEL_ARCH.axle} />
 
-      <group position={[1.855, 0.8, 0.5]} rotation-y={Math.PI / 2}>
+      <group position={[1.985, 0.8, 0.46]} rotation-y={Math.PI / 2}>
         <Headlight />
       </group>
 
-      <mesh position={[-1.85, 0.72, 0.56]}>
-        <boxGeometry args={[0.03, 0.26, 0.12]} />
-        <meshBasicMaterial color={COLORS.neon} />
-      </mesh>
+      <Toon color={COLORS.neon} position={[-1.965, 0.76, 0.665]} outline={0.012}>
+        <boxGeometry args={[0.04, 0.3, 0.09]} />
+      </Toon>
 
       <HatchStrut open={doorOpen} />
     </>
@@ -95,7 +104,7 @@ export function PhotoBus({ doorOpen, onToggleDoor }: { doorOpen: boolean; onTogg
 
   return (
     <group
-      position-x={0.3}
+      position-x={BUS_OFFSET_X}
       onClick={handleClick}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
@@ -105,16 +114,22 @@ export function PhotoBus({ doorOpen, onToggleDoor }: { doorOpen: boolean; onTogg
       </mesh>
 
       <mesh position-y={0.44}>
-        <boxGeometry args={[3.5, 0.34, 1.3]} />
+        <boxGeometry args={[3.7, 0.34, 1.3]} />
         <meshBasicMaterial color={COLORS.ink} />
       </mesh>
+      {[-WHEEL_ARCH.axle, WHEEL_ARCH.axle].map((x) => (
+        <mesh key={x} position={[x, 0.62, 0]}>
+          <boxGeometry args={[2 * WHEEL_ARCH.radius + 0.06, 0.4, 1.5]} />
+          <meshBasicMaterial color={COLORS.ink} />
+        </mesh>
+      ))}
 
       {[0, Math.PI].map((angle) => (
         <group key={angle} rotation-y={angle}>
           <Toon
             geometry={bumperGeometry}
             color={COLORS.inkSoft}
-            position={[1.84, 0.34, 0]}
+            position={[1.97, 0.32, 0]}
             outline={0.016}
           />
         </group>
@@ -133,7 +148,14 @@ export function PhotoBus({ doorOpen, onToggleDoor }: { doorOpen: boolean; onTogg
         <BusFlank doorOpen={doorOpen} />
       </group>
 
-      <InkLine segments points={rackPoints} lineWidth={2.4} />
+      <InkLine segments points={rackFrame} lineWidth={2.6} />
+      <InkLine segments points={rackSlats} lineWidth={1.3} />
+      {rackFeet.map(([x, z]) => (
+        <mesh key={`${x}${z}`} position={[x, RACK_Y - 0.205, z]}>
+          <boxGeometry args={[0.13, 0.03, 0.06]} />
+          <meshBasicMaterial color={COLORS.ink} />
+        </mesh>
+      ))}
       <RoofSign />
       <Hatch open={doorOpen} />
       <HeadlightPool />

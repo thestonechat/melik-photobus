@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
+import { spinFeed } from "@/components/spin/spinFeed";
 import { COLORS } from "../busArt";
 import { LOOP, stageTime, TAU, useSpinFrame } from "./timeline";
 
@@ -12,6 +13,8 @@ const FLUTTER_FALL = 0.62;
 const PIECES = 96;
 const STREAMERS = 8;
 const STREAMER_LINKS = 16;
+/** The cheapest quality keeps every third piece: a burst still reads as a burst. */
+const SPARSE = 3;
 const LINK_LAG = 0.022;
 const PIECE_COLORS = [COLORS.neon, COLORS.ink, COLORS.paper, COLORS.neonAccent];
 const STREAMER_COLORS = [COLORS.neon, COLORS.paper, COLORS.ink];
@@ -80,6 +83,7 @@ export function Confetti() {
 
   useSpinFrame((time) => {
     const stage = stageTime(time);
+    pieces.current!.count = spinFeed.quality === 0 ? Math.floor(PIECES / SPARSE) : PIECES;
     PIECE_SHOTS.forEach((shot, i) => {
       const age = ageOf(shot, stage);
       place(dummy, shot, age);

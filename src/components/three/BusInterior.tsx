@@ -1,33 +1,80 @@
 import * as THREE from "three";
-import { COLORS, createFabricTexture, createMirrorTexture } from "./busArt";
-import { createRoomGeometry, tailFrame } from "./busGeometry";
+import { COLORS } from "./busArt";
+import {
+  createRoomGeometry,
+  DOOR_STEP,
+  TAIL_FRAME_X,
+  TAIL_RAKE,
+  tailFrame,
+} from "./busGeometry";
+import {
+  createBenchTexture,
+  createCabinWallTexture,
+  createCeilingTexture,
+  createFabricTexture,
+  createMarbleTexture,
+  createMirrorTexture,
+} from "./busTextures";
 import { Toon } from "./Toon";
 
-const fabricTexture = createFabricTexture();
+const CABIN = { rear: -0.98, front: 0.07, floor: 0.62, ceiling: 1.86 };
+const NOOK = { rear: -1.86, front: -1.3, shelf: 1.02, top: 1.84, half: 0.72 };
+const BENCH = { depth: 0.36, seatTop: 0.96, backThickness: 0.2, backTop: 1.34, outer: 0.64 };
+/** Lime band across the nook wall, low enough to clear the tail lip from the raised camera. */
+const LINTEL = { y: 1.72, height: 0.24, width: 1.14 };
+const NOOK_WIDTH = 2 * NOOK.half;
+const NOOK_DEPTH = NOOK.front - NOOK.rear;
+const NOOK_HEIGHT = NOOK.top - NOOK.shelf;
+const FABRIC_REPEAT = 1.25;
+
+const basic = (color: string) => new THREE.MeshBasicMaterial({ color, side: THREE.BackSide });
+const mapped = (map: THREE.Texture) => new THREE.MeshBasicMaterial({ map, side: THREE.BackSide });
+
+const fabric = createFabricTexture();
 const mirrorTexture = createMirrorTexture();
+const benchTexture = createBenchTexture();
 
-/** Open-sided box seen from within; walls facing the viewer cull away, so openings stay clear. */
-function Room({ size, position }: { size: [number, number, number]; position: [number, number, number] }) {
-  return (
-    <mesh position={position}>
-      <boxGeometry args={size} />
-      <meshBasicMaterial map={fabricTexture} side={THREE.BackSide} />
-    </mesh>
-  );
+/** A world-scaled copy of the fabric, so its motif keeps one size on faces of any shape. */
+function fabricFace(width: number, height: number) {
+  const texture = fabric.clone();
+  texture.repeat.set(width * FABRIC_REPEAT, height * FABRIC_REPEAT);
+  texture.needsUpdate = true;
+  return texture;
 }
 
-function LightStrip({ position, length, axis }: { position: [number, number, number]; length: number; axis: "x" | "z" }) {
-  return (
-    <mesh position={position}>
-      <boxGeometry args={axis === "x" ? [length, 0.02, 0.03] : [0.03, 0.02, length]} />
-      <meshBasicMaterial color={COLORS.primary} />
-    </mesh>
-  );
-}
+const cabinShell = createRoomGeometry(CABIN.rear, CABIN.front, CABIN.floor, CABIN.ceiling);
+/** Box-face order: cab side, rear wall, ceiling, floor, door flank, centre wall. */
+const cabinMaterials = [
+  basic(COLORS.cabinPaint),
+  mapped(createMarbleTexture()),
+  mapped(createCeilingTexture()),
+  basic(COLORS.floor),
+  basic(COLORS.cabinPaint),
+  mapped(
+    createCabinWallTexture({
+      ...CABIN,
+      windows: [
+        { rear: -0.94, front: -0.62, bottom: 1.22, top: 1.76 },
+        { rear: -0.5, front: -0.04, bottom: 1.22, top: 1.76 },
+      ],
+    }),
+  ),
+];
+
+const nookShell = createRoomGeometry(NOOK.rear, NOOK.front, NOOK.shelf, NOOK.top, -NOOK.half, NOOK.half);
+const nookMaterials = [
+  mapped(fabricFace(NOOK_WIDTH, NOOK_HEIGHT)),
+  mapped(fabricFace(NOOK_WIDTH, NOOK_HEIGHT)),
+  basic(COLORS.lime),
+  mapped(fabricFace(NOOK_DEPTH, NOOK_WIDTH)),
+  mapped(fabricFace(NOOK_DEPTH, NOOK_HEIGHT)),
+  mapped(fabricFace(NOOK_DEPTH, NOOK_HEIGHT)),
+];
+const shelfFrontTexture = fabricFace(NOOK_WIDTH, NOOK.shelf - 0.46);
 
 function CoffeeMaker() {
   return (
-    <group position={[-1.56, 0.92, 0.39]} rotation-y={-Math.PI / 2}>
+    <group position={[-1.6, NOOK.shelf, 0.42]} rotation-y={-Math.PI / 2}>
       <Toon color={COLORS.inkSoft} position={[0, 0.02, 0]} outline={0.012}>
         <boxGeometry args={[0.24, 0.04, 0.2]} />
       </Toon>
@@ -52,37 +99,65 @@ function CoffeeMaker() {
   );
 }
 
-/** The vanity under the lifted hatch: fabric nook, wall mirror and a coffee maker on the shelf. */
+/** The vanity under the lifted hatch: fabric nook, dark mirror, lit lintel, coffee maker. */
 export function RearNook() {
   return (
     <>
-      <Room size={[0.48, 0.84, 1.26]} position={[-1.56, 1.32, 0]} />
-      <mesh geometry={tailFrame} position-x={-1.855} rotation-y={-Math.PI / 2}>
-        <meshBasicMaterial color={COLORS.primary} />
-      </mesh>
-      <LightStrip position={[-1.7, 1.69, 0]} length={1.1} axis="z" />
-      <group position={[-1.325, 1.31, -0.1]} rotation-y={Math.PI / 2}>
-        <mesh position-z={-0.002}>
-          <planeGeometry args={[0.8, 0.66]} />
-          <meshBasicMaterial color={COLORS.ink} side={THREE.DoubleSide} />
-        </mesh>
-        <mesh position-z={-0.004}>
-          <planeGeometry args={[0.76, 0.62]} />
-          <meshBasicMaterial map={mirrorTexture} side={THREE.DoubleSide} />
+      <mesh geometry={nookShell} material={nookMaterials} />
+      <group position-x={TAIL_FRAME_X} rotation-z={-TAIL_RAKE}>
+        <mesh geometry={tailFrame} rotation-y={-Math.PI / 2}>
+          <meshBasicMaterial color={COLORS.cabinPaint} />
         </mesh>
       </group>
+      <mesh position={[-1.88, (NOOK.shelf + 0.46) / 2, 0]} rotation-y={-Math.PI / 2}>
+        <planeGeometry args={[NOOK_WIDTH, NOOK.shelf - 0.46]} />
+        <meshBasicMaterial map={shelfFrontTexture} color={COLORS.steelDeep} />
+      </mesh>
+      <group position={[NOOK.front - 0.004, 1.32, -0.12]} rotation-y={-Math.PI / 2}>
+        <mesh position-z={-0.001}>
+          <planeGeometry args={[0.8, 0.58]} />
+          <meshBasicMaterial color={COLORS.steel} />
+        </mesh>
+        <mesh>
+          <planeGeometry args={[0.77, 0.55]} />
+          <meshBasicMaterial map={mirrorTexture} />
+        </mesh>
+      </group>
+      <mesh position={[NOOK.front - 0.006, LINTEL.y, 0]} rotation-y={-Math.PI / 2}>
+        <planeGeometry args={[LINTEL.width, LINTEL.height]} />
+        <meshBasicMaterial color={COLORS.lime} />
+      </mesh>
       <CoffeeMaker />
     </>
   );
 }
 
-const cabinShell = createRoomGeometry(-1, 0.04, 0.62, 1.86);
-
-function Shell({ geometry }: { geometry: THREE.BufferGeometry }) {
+function Bench() {
+  const { depth, seatTop, backThickness, backTop, outer } = BENCH;
+  const inner = 0.02;
+  const width = outer - inner;
+  const middle = (outer + inner) / 2;
+  const backX = CABIN.rear + backThickness / 2;
+  const backHeight = backTop - CABIN.floor;
   return (
-    <mesh geometry={geometry}>
-      <meshBasicMaterial map={fabricTexture} side={THREE.BackSide} />
-    </mesh>
+    <>
+      <Toon color={COLORS.inkSoft} position={[backX, CABIN.floor + backHeight / 2, middle]}>
+        <boxGeometry args={[backThickness, backHeight, width]} />
+      </Toon>
+      <mesh
+        position={[CABIN.rear + backThickness + 0.002, (seatTop + backTop) / 2, middle]}
+        rotation-y={Math.PI / 2}
+      >
+        <planeGeometry args={[width, backTop - seatTop]} />
+        <meshBasicMaterial map={benchTexture} />
+      </mesh>
+      <Toon
+        color={COLORS.inkSoft}
+        position={[CABIN.rear + depth / 2, (CABIN.floor + seatTop) / 2, middle]}
+      >
+        <boxGeometry args={[depth, seatTop - CABIN.floor, width]} />
+      </Toon>
+    </>
   );
 }
 
@@ -90,17 +165,11 @@ function Shell({ geometry }: { geometry: THREE.BufferGeometry }) {
 export function Cabin() {
   return (
     <>
-      <Shell geometry={cabinShell} />
-      <LightStrip position={[-0.47, 1.84, 0.34]} length={0.96} axis="x" />
-      <Toon color={COLORS.primary} position={[-0.78, 0.76, 0.36]}>
-        <boxGeometry args={[0.36, 0.28, 0.62]} />
+      <mesh geometry={cabinShell} material={cabinMaterials} />
+      <Bench />
+      <Toon color={COLORS.steel} position={DOOR_STEP.position} outline={0.01}>
+        <boxGeometry args={DOOR_STEP.size} />
       </Toon>
-      {[-0.42, -0.2, 0.0].map((x, i) => (
-        <mesh key={x} position={[x - 0.02, 1.34, 0.03]} rotation-z={(i - 1) * 0.08}>
-          <planeGeometry args={[0.15, 0.42]} />
-          <meshBasicMaterial color={COLORS.paper} />
-        </mesh>
-      ))}
     </>
   );
 }

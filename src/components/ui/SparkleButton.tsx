@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { type CSSProperties, useCallback, useRef, useState } from "react";
 import { motion, type HTMLMotionProps } from "motion/react";
 import { Sparkle } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -68,28 +68,18 @@ export function SparkleButton({
     >
       <span className="pointer-events-none absolute inset-0 overflow-visible">
         {STREAM.map((s, i) => (
-          <motion.span
+          <span
             key={i}
-            className="absolute -top-1 block"
-            style={{ left: s.left }}
-            animate={{
-              y: [2, -26],
-              opacity: [0, 1, 0],
-              scale: [0.3, 1],
-              rotate: [s.rot, s.rot + 160],
-            }}
-            transition={{
-              duration: 1.6,
-              repeat: Infinity,
-              delay: s.delay,
-              ease: "easeInOut",
-            }}
+            className="absolute -top-1 block animate-sparkle motion-reduce:hidden"
+            style={
+              { left: s.left, animationDelay: `${s.delay}s`, "--rot": `${s.rot}deg` } as CSSProperties
+            }
           >
             <Sparkle
               size={s.size}
               className={s.left === "90%" ? "text-white" : "text-ink"}
             />
-          </motion.span>
+          </span>
         ))}
       </span>
 

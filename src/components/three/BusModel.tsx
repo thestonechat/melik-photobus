@@ -1,19 +1,23 @@
 "use client";
 
-import { Suspense, useLayoutEffect, useState } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { Camera } from "lucide-react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Float, OrbitControls } from "@react-three/drei";
 import { COLORS } from "./busArt";
 import { PhotoBus } from "./PhotoBus";
+import { detectQuality, qualityDpr, useSceneVisible } from "./quality";
+import { QualityMonitor } from "./QualityMonitor";
 import { WebGLBoundary } from "./WebGLBoundary";
 
 const CAMERA_TARGET = new THREE.Vector3(0, 1.25, 0);
 const CAMERA_FOV = 35;
-/** World-space half extents the camera must keep in frame at any orbit angle. */
+/** Radius around the orbit axis, and half height, the camera must keep in frame at any angle. */
 const FRAME_HALF_WIDTH = 3.05;
 const FRAME_HALF_HEIGHT = 2;
+/** How long a still bus keeps drawing after a click, for the doors to finish moving. */
+const DOOR_ANIMATION_MS = 3000;
 
 /** Picks the orbit distance per canvas aspect, so wide mobile canvases don't shrink the bus. */
 function FitCamera() {
@@ -21,8 +25,11 @@ function FitCamera() {
   const aspect = useThree((state) => state.viewport.aspect);
 
   useLayoutEffect(() => {
-    const halfHeight = Math.max(FRAME_HALF_HEIGHT, FRAME_HALF_WIDTH / aspect);
-    const distance = halfHeight / Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
+    const tanHalfFov = Math.tan(THREE.MathUtils.degToRad(CAMERA_FOV / 2));
+    const distance = Math.max(
+      FRAME_HALF_HEIGHT / tanHalfFov,
+      FRAME_HALF_WIDTH / Math.sin(Math.atan(tanHalfFov * aspect)),
+    );
     camera.position.sub(CAMERA_TARGET).setLength(distance).add(CAMERA_TARGET);
   }, [camera, aspect]);
 
@@ -30,40 +37,63 @@ function FitCamera() {
 }
 
 function BusScene() {
+  const root = useRef<HTMLDivElement>(null);
+  const visible = useSceneVisible(root);
+  const [ceiling] = useState(detectQuality);
+  const [quality, setQuality] = useState(ceiling);
   const [doorOpen, setDoorOpen] = useState(false);
+  const [doorMoving, setDoorMoving] = useState(false);
+  const moving = quality > 0;
+
+  useEffect(() => {
+    if (!doorMoving) return;
+    const timer = setTimeout(() => setDoorMoving(false), DOOR_ANIMATION_MS);
+    return () => clearTimeout(timer);
+  }, [doorMoving, doorOpen]);
+
+  const toggleDoor = () => {
+    setDoorOpen((open) => !open);
+    setDoorMoving(true);
+  };
+
+  const frameloop = !visible ? "never" : moving || doorMoving ? "always" : "demand";
 
   return (
-    <Canvas
-      flat
-      dpr={[1, 2]}
-      camera={{ position: [6.9, 3.4, 8], fov: CAMERA_FOV }}
-      gl={{ antialias: true, alpha: true }}
-    >
-      <FitCamera />
-      <ambientLight intensity={2.1} color="#ffedd5" />
-      <directionalLight position={[3, 7, 6]} intensity={1.6} />
+    <div ref={root} className="h-full w-full">
+      <Canvas
+        flat
+        dpr={qualityDpr(quality)}
+        frameloop={frameloop}
+        camera={{ position: [6.9, 3.4, 8], fov: CAMERA_FOV }}
+        gl={{ antialias: ceiling > 0, alpha: true }}
+      >
+        <FitCamera />
+        <QualityMonitor ceiling={ceiling} onChange={setQuality} />
+        <ambientLight intensity={2.1} color="#ffedd5" />
+        <directionalLight position={[3, 7, 6]} intensity={1.6} />
 
-      <Suspense fallback={null}>
-        <Float speed={1.6} rotationIntensity={0.25} floatIntensity={0.5}>
-          <PhotoBus doorOpen={doorOpen} onToggleDoor={() => setDoorOpen((open) => !open)} />
-        </Float>
-        <mesh rotation-x={-Math.PI / 2} position-y={0.005} scale={[2.5, 1.15, 1]}>
-          <circleGeometry args={[1, 48]} />
-          <meshBasicMaterial color={COLORS.ink} transparent opacity={0.14} />
-        </mesh>
-      </Suspense>
+        <Suspense fallback={null}>
+          <Float speed={moving ? 1.6 : 0} rotationIntensity={0.25} floatIntensity={0.5}>
+            <PhotoBus doorOpen={doorOpen} onToggleDoor={toggleDoor} />
+          </Float>
+          <mesh rotation-x={-Math.PI / 2} position-y={0.005} scale={[2.5, 1.15, 1]}>
+            <circleGeometry args={[1, 48]} />
+            <meshBasicMaterial color={COLORS.ink} transparent opacity={0.14} />
+          </mesh>
+        </Suspense>
 
-      <OrbitControls
-        makeDefault
-        target={CAMERA_TARGET}
-        enableZoom={false}
-        enablePan={false}
-        autoRotate={!doorOpen}
-        autoRotateSpeed={1.4}
-        minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 2.15}
-      />
-    </Canvas>
+        <OrbitControls
+          makeDefault
+          target={CAMERA_TARGET}
+          enableZoom={false}
+          enablePan={false}
+          autoRotate={moving && !doorOpen}
+          autoRotateSpeed={1.4}
+          minPolarAngle={Math.PI / 4}
+          maxPolarAngle={Math.PI / 2.15}
+        />
+      </Canvas>
+    </div>
   );
 }
 

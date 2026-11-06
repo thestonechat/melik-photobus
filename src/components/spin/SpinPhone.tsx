@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+import { useInView } from "motion/react";
 import { SpinHud } from "@/components/spin/SpinHud";
 import { FEED_HEIGHT, FEED_WIDTH, spinFeed } from "@/components/spin/spinFeed";
 
@@ -21,6 +23,18 @@ function StaticFeed() {
 
 /** The arm's camera, live: its canvas is painted by the 3D scene in `SpinModel`. */
 export function SpinPhone({ label, speed }: { label: string; speed: string }) {
+  const screen = useRef<HTMLCanvasElement>(null);
+  const inView = useInView(screen);
+
+  useEffect(() => {
+    attachScreen(screen.current);
+    return () => attachScreen(null);
+  }, []);
+
+  useEffect(() => {
+    spinFeed.screenVisible = inView;
+  }, [inView]);
+
   return (
     <div
       aria-hidden="true"
@@ -28,7 +42,7 @@ export function SpinPhone({ label, speed }: { label: string; speed: string }) {
     >
       <div className="relative aspect-[9/16] overflow-hidden rounded-[1.35rem] bg-ink-soft">
         <StaticFeed />
-        <canvas ref={attachScreen} width={FEED_WIDTH} height={FEED_HEIGHT} className="absolute inset-0 h-full w-full" />
+        <canvas ref={screen} width={FEED_WIDTH} height={FEED_HEIGHT} className="absolute inset-0 h-full w-full" />
         <SpinHud label={label} speed={speed} />
       </div>
     </div>
