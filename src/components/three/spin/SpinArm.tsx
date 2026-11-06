@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { COLORS } from "../busArt";
 import { Toon } from "../Toon";
@@ -8,18 +8,20 @@ import { starGeometry } from "./geometry";
 import { armAngle, flashAmount, useSpinFrame } from "./timeline";
 
 const ARM_RADIUS = 1.28;
-const HEAD_Y = 1.62;
+const HEAD_Y = 1.08;
 const TRAIL_COUNT = 30;
 const TRAIL_STEP = 0.013;
 const STAR = starGeometry(8, 0.45);
+/** The ring rides below her face and tips up at it, keeping her clear on front passes. */
+const RING_TILT = -0.35;
 const BEAM_LENGTH = 1.05;
 const trailDummy = new THREE.Object3D();
 
-function tipX(angle: number) {
+export function tipX(angle: number) {
   return Math.cos(angle) * ARM_RADIUS;
 }
 
-function tipZ(angle: number) {
+export function tipZ(angle: number) {
   return -Math.sin(angle) * ARM_RADIUS;
 }
 
@@ -74,7 +76,7 @@ function FlashPop() {
   );
 }
 
-export function SpinArm() {
+export function SpinArm({ rigRef }: { rigRef: RefObject<THREE.Group | null> }) {
   const arm = useRef<THREE.Group>(null);
   const sweep = useRef<THREE.DirectionalLight>(null);
   const beam = useRef<THREE.MeshBasicMaterial>(null);
@@ -91,41 +93,43 @@ export function SpinArm() {
   return (
     <>
       <directionalLight ref={sweep} />
-      <group ref={arm}>
-        <Toon color={COLORS.ink} position={[0.08, 0.1, 0]} outline={0.01}>
-          <boxGeometry args={[2.4, 0.09, 0.14]} />
-        </Toon>
-        <Toon color={COLORS.inkSoft} position={[-1.12, 0.14, 0]} outline={0.012}>
-          <boxGeometry args={[0.2, 0.16, 0.22]} />
-        </Toon>
-        <Toon color={COLORS.ink} position={[ARM_RADIUS, HEAD_Y / 2, 0]} outline={0.01}>
-          <cylinderGeometry args={[0.024, 0.04, HEAD_Y, 12]} />
-        </Toon>
-        <group position={[ARM_RADIUS - 0.04, HEAD_Y, 0]} rotation-y={-Math.PI / 2}>
-          <Toon color={COLORS.ink} outline={0.01}>
-            <boxGeometry args={[0.13, 0.25, 0.03]} />
+      <group ref={rigRef}>
+        <group ref={arm}>
+          <Toon color={COLORS.ink} position={[0.08, 0.1, 0]} outline={0.01}>
+            <boxGeometry args={[2.4, 0.09, 0.14]} />
           </Toon>
-          <mesh position={[0, 0.08, 0.017]}>
-            <circleGeometry args={[0.024, 16]} />
-            <meshBasicMaterial color={COLORS.neon} />
-          </mesh>
-          <Toon color={COLORS.paper} outline={0.012}>
-            <torusGeometry args={[0.23, 0.03, 10, 40]} />
+          <Toon color={COLORS.inkSoft} position={[-1.12, 0.14, 0]} outline={0.012}>
+            <boxGeometry args={[0.2, 0.16, 0.22]} />
           </Toon>
-          <mesh position-z={BEAM_LENGTH / 2} rotation-x={-Math.PI / 2}>
-            <coneGeometry args={[0.2, BEAM_LENGTH, 24, 1, true]} />
-            <meshBasicMaterial
-              ref={beam}
-              color={COLORS.paper}
-              transparent
-              depthWrite={false}
-              side={THREE.DoubleSide}
-            />
-          </mesh>
+          <Toon color={COLORS.ink} position={[ARM_RADIUS, HEAD_Y / 2, 0]} outline={0.01}>
+            <cylinderGeometry args={[0.024, 0.04, HEAD_Y, 12]} />
+          </Toon>
+          <group position={[ARM_RADIUS - 0.04, HEAD_Y, 0]} rotation={[RING_TILT, -Math.PI / 2, 0, "YXZ"]}>
+            <Toon color={COLORS.ink} outline={0.01}>
+              <boxGeometry args={[0.13, 0.25, 0.03]} />
+            </Toon>
+            <mesh position={[0, 0.08, 0.017]}>
+              <circleGeometry args={[0.024, 16]} />
+              <meshBasicMaterial color={COLORS.neon} />
+            </mesh>
+            <Toon color={COLORS.paper} outline={0.012}>
+              <torusGeometry args={[0.23, 0.03, 10, 40]} />
+            </Toon>
+            <mesh position-z={BEAM_LENGTH / 2} rotation-x={-Math.PI / 2}>
+              <coneGeometry args={[0.2, BEAM_LENGTH, 24, 1, true]} />
+              <meshBasicMaterial
+                ref={beam}
+                color={COLORS.paper}
+                transparent
+                depthWrite={false}
+                side={THREE.DoubleSide}
+              />
+            </mesh>
+          </group>
         </group>
+        <Trail />
+        <FlashPop />
       </group>
-      <Trail />
-      <FlashPop />
     </>
   );
 }

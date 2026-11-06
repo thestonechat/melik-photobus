@@ -52,7 +52,7 @@ const cards: Record<
   festivals: {
     icon: Music,
     shell: "bg-gradient-to-br from-fuchsia-100 via-purple-50 to-emerald-100",
-    iconShell: "bg-gradient-to-r from-fuchsia-500 via-orange-400 to-emerald-400",
+    iconShell: "bg-fuchsia-500",
     iconColor: "text-white",
     titleColor: "text-fuchsia-700",
   },

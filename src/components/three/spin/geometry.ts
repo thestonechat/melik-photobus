@@ -25,3 +25,11 @@ export function starGeometry(points: number, inner: number) {
   }
   return new THREE.ShapeGeometry(shape);
 }
+
+export function heartGeometry() {
+  const shape = new THREE.Shape();
+  shape.moveTo(0, -0.1);
+  shape.bezierCurveTo(-0.16, 0, -0.1, 0.11, 0, 0.05);
+  shape.bezierCurveTo(0.1, 0.11, 0.16, 0, 0, -0.1);
+  return new THREE.ShapeGeometry(shape, 10);
+}

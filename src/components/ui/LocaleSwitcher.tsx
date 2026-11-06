@@ -22,6 +22,7 @@ export function LocaleSwitcher() {
     startTransition(() => {
       router.replace(`${pathname}${window.location.hash}`, {
         locale: nextLocale,
+        scroll: false,
       });
     });
   }

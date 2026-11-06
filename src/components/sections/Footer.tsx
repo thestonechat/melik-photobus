@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
-import { Camera, Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
+import { BrandMark } from "@/components/ui/BrandMark";
 
 function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -57,7 +58,7 @@ export async function Footer() {
         <div>
           <a href="#top" className="flex items-center gap-2.5">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-paper bg-primary shadow-[2px_2px_0_0_var(--color-ink)]">
-              <Camera className="h-4.5 w-4.5 text-ink" />
+              <BrandMark fg="var(--color-ink)" bg="var(--color-primary)" className="h-7 w-7" />
             </span>
             <span className="font-display text-xl font-bold tracking-tight text-paper">
               Photo<span className="text-primary">graph</span>

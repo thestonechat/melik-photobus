@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { AnimatePresence, motion } from "motion/react";
-import { Camera, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { BrandMark } from "@/components/ui/BrandMark";
 import { Button } from "@/components/ui/Button";
 import { LocaleSwitcher } from "@/components/ui/LocaleSwitcher";
 import { cn } from "@/lib/utils";
@@ -43,7 +44,7 @@ export function Navbar() {
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
         <a href="#top" className="group flex items-center gap-2.5">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl border-2 border-ink bg-ink shadow-[2px_2px_0_0_var(--color-primary)] transition-transform group-hover:-rotate-6">
-            <Camera className="h-4.5 w-4.5 text-primary" />
+            <BrandMark fg="var(--color-primary)" bg="var(--color-ink)" className="h-7 w-7" />
           </span>
           <span className="font-display text-xl font-bold tracking-tight text-ink">
             Photo<span className="text-primary-strong">graph</span>
