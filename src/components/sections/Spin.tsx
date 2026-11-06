@@ -1,17 +1,15 @@
 "use client";
 
 import { useRef } from "react";
-import dynamic from "next/dynamic";
 import { useTranslations } from "next-intl";
 import { motion } from "motion/react";
 import { Footprints, Send, Share2, Video } from "lucide-react";
 import { SpinBadge } from "@/components/spin/SpinBadge";
 import { SpinPhone } from "@/components/spin/SpinPhone";
-import { LazyScene } from "@/components/three/LazyScene";
+import { SpinVideo } from "@/components/spin/SpinVideo";
+import { useSpinVideo } from "@/components/spin/useSpinVideo";
 import { Button } from "@/components/ui/Button";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-
-const SpinModel = dynamic(() => import("@/components/three/SpinModel"), { ssr: false });
 
 const steps = [
   { key: "stand", icon: Footprints },
@@ -22,6 +20,9 @@ const steps = [
 export function Spin() {
   const t = useTranslations("spin");
   const stage = useRef<HTMLDivElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
+  const screen = useRef<HTMLCanvasElement>(null);
+  const { enabled, live } = useSpinVideo(stage, video, screen);
 
   return (
     <section id="spin" className="relative scroll-mt-20 overflow-hidden bg-ink py-20 sm:py-28">
@@ -52,15 +53,13 @@ export function Spin() {
 
           <div ref={stage} className="relative min-w-0 pb-6 lg:pb-10 lg:pr-10">
             <div className="relative aspect-square overflow-hidden rounded-[2rem] border-2 border-paper bg-primary shadow-[8px_8px_0_0_var(--color-primary-strong)]">
-              <LazyScene>
-                <SpinModel stageRef={stage} />
-              </LazyScene>
+              <SpinVideo videoRef={video} enabled={enabled} live={live} />
               <div className="absolute left-3 top-3 sm:left-4 sm:top-4">
                 <SpinBadge text={t("badge")} />
               </div>
             </div>
             <div className="absolute bottom-0 right-1 z-10 lg:right-0">
-              <SpinPhone label={t("phoneRec")} speed={t("phoneSpeed")} />
+              <SpinPhone screenRef={screen} live={live} label={t("phoneRec")} speed={t("phoneSpeed")} />
             </div>
           </div>
         </div>

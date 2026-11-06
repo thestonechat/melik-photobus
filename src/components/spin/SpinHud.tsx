@@ -5,11 +5,13 @@ import { spinFeed } from "@/components/spin/spinFeed";
 
 const REC_RED = "#ff1a1a";
 const FPS = 30;
+/** A frame's media time is rounded to the millisecond, which can land just short of the frame. */
+const FRAME_SNAP = 0.1;
 
 const pad = (value: number) => String(value).padStart(2, "0");
 
 function formatTimecode(clip: number) {
-  const frames = Math.floor(clip * FPS);
+  const frames = Math.floor(clip * FPS + FRAME_SNAP);
   return `00:${pad(Math.floor(frames / FPS))}:${pad(frames % FPS)}`;
 }
 
