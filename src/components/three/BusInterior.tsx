@@ -20,8 +20,6 @@ import { Toon } from "./Toon";
 const CABIN = { rear: -0.98, front: 0.07, floor: 0.62, ceiling: 1.86 };
 const NOOK = { rear: -1.86, front: -1.3, shelf: 1.02, top: 1.84, half: 0.72 };
 const BENCH = { depth: 0.36, seatTop: 0.96, backThickness: 0.2, backTop: 1.34, outer: 0.64 };
-/** Lime band across the nook wall, low enough to clear the tail lip from the raised camera. */
-const LINTEL = { y: 1.72, height: 0.24, width: 1.14 };
 const NOOK_WIDTH = 2 * NOOK.half;
 const NOOK_DEPTH = NOOK.front - NOOK.rear;
 const NOOK_HEIGHT = NOOK.top - NOOK.shelf;
@@ -65,7 +63,7 @@ const nookShell = createRoomGeometry(NOOK.rear, NOOK.front, NOOK.shelf, NOOK.top
 const nookMaterials = [
   mapped(fabricFace(NOOK_WIDTH, NOOK_HEIGHT)),
   mapped(fabricFace(NOOK_WIDTH, NOOK_HEIGHT)),
-  basic(COLORS.lime),
+  mapped(fabricFace(NOOK_DEPTH, NOOK_WIDTH)),
   mapped(fabricFace(NOOK_DEPTH, NOOK_WIDTH)),
   mapped(fabricFace(NOOK_DEPTH, NOOK_HEIGHT)),
   mapped(fabricFace(NOOK_DEPTH, NOOK_HEIGHT)),
@@ -123,10 +121,6 @@ export function RearNook() {
           <meshBasicMaterial map={mirrorTexture} />
         </mesh>
       </group>
-      <mesh position={[NOOK.front - 0.006, LINTEL.y, 0]} rotation-y={-Math.PI / 2}>
-        <planeGeometry args={[LINTEL.width, LINTEL.height]} />
-        <meshBasicMaterial color={COLORS.lime} />
-      </mesh>
       <CoffeeMaker />
     </>
   );

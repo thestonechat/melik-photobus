@@ -50,7 +50,7 @@ export function Spin() {
             <p className="mt-4 text-sm text-paper/60">{t("priceHint")}</p>
           </div>
 
-          <div ref={stage} className="relative min-w-0 lg:pb-10 lg:pr-10">
+          <div ref={stage} className="relative min-w-0 pb-6 lg:pb-10 lg:pr-10">
             <div className="relative aspect-square overflow-hidden rounded-[2rem] border-2 border-paper bg-primary shadow-[8px_8px_0_0_var(--color-primary-strong)]">
               <LazyScene>
                 <SpinModel stageRef={stage} />
@@ -59,7 +59,7 @@ export function Spin() {
                 <SpinBadge text={t("badge")} />
               </div>
             </div>
-            <div className="relative z-10 -mt-12 flex justify-center sm:-mt-20 lg:absolute lg:bottom-0 lg:right-0 lg:mt-0">
+            <div className="absolute bottom-0 right-1 z-10 lg:right-0">
               <SpinPhone label={t("phoneRec")} speed={t("phoneSpeed")} />
             </div>
           </div>

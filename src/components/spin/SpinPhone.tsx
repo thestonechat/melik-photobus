@@ -38,7 +38,7 @@ export function SpinPhone({ label, speed }: { label: string; speed: string }) {
   return (
     <div
       aria-hidden="true"
-      className="w-40 rotate-3 rounded-[1.75rem] border-2 border-paper bg-ink p-1.5 shadow-[6px_6px_0_0_var(--color-primary-strong)] sm:w-52"
+      className="w-32 rotate-3 rounded-[1.75rem] border-2 border-paper bg-ink p-1.5 shadow-[6px_6px_0_0_var(--color-primary-strong)] sm:w-52"
     >
       <div className="relative aspect-[9/16] overflow-hidden rounded-[1.35rem] bg-ink-soft">
         <StaticFeed />

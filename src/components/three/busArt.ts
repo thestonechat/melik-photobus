@@ -10,7 +10,6 @@ export const COLORS = {
   mustard: "#f2b61e",
   cabinPaint: "#fae100",
   cabinPaintDeep: "#e3c800",
-  lime: "#d8f02c",
   steel: "#d4d4d8",
   steelDeep: "#71717a",
   floor: "#d6d6d3",
