@@ -18,15 +18,15 @@ function formatTimecode(clip: number) {
 const CORNERS = [
   "left-2 top-9 border-l-2 border-t-2 rounded-tl-md",
   "right-2 top-9 border-r-2 border-t-2 rounded-tr-md",
-  "left-2 bottom-[4.75rem] border-l-2 border-b-2 rounded-bl-md",
-  "right-2 bottom-[4.75rem] border-r-2 border-b-2 rounded-br-md",
+  "left-2 bottom-16 sm:bottom-[4.75rem] border-l-2 border-b-2 rounded-bl-md",
+  "right-2 bottom-16 sm:bottom-[4.75rem] border-r-2 border-b-2 rounded-br-md",
 ];
 
 /** Top-down map: the guest faces up and the dot is the camera, turning as the arm does. */
 function OrbitDial() {
   const rotate = useTransform(spinFeed.orbit, (orbit) => -orbit);
   return (
-    <span className="relative block h-8 w-8 rounded-full border-2 border-paper/70">
+    <span className="relative block h-6 w-6 rounded-full sm:h-8 sm:w-8 border-2 border-paper/70">
       <span className="absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary" />
       <motion.span style={{ rotate }} className="absolute inset-[-2px]">
         <span className="absolute left-1/2 top-[-3px] h-2 w-2 -translate-x-1/2 rounded-full border border-ink bg-paper" />
@@ -38,7 +38,7 @@ function OrbitDial() {
 function StopButton() {
   const lap = useTransform(spinFeed.orbit, [0, 360], [0, 1]);
   return (
-    <span className="relative flex h-12 w-12 items-center justify-center">
+    <span className="relative flex h-10 w-10 shrink-0 items-center justify-center sm:h-12 sm:w-12">
       <svg viewBox="0 0 48 48" className="absolute inset-0 -rotate-90">
         <circle cx="24" cy="24" r="21.5" fill="none" stroke="var(--color-paper)" strokeOpacity="0.3" strokeWidth="4" />
         <motion.circle
@@ -51,7 +51,7 @@ function StopButton() {
           style={{ pathLength: lap }}
         />
       </svg>
-      <span className="h-5 w-5 rounded-[5px] border-2 border-ink" style={{ background: REC_RED }} />
+      <span className="h-4 w-4 rounded-[4px] border-2 border-ink sm:h-5 sm:w-5 sm:rounded-[5px]" style={{ background: REC_RED }} />
     </span>
   );
 }
@@ -88,8 +88,8 @@ export function SpinHud({
         </motion.span>
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 flex h-[4.25rem] items-center justify-between border-t-2 border-ink bg-ink/85 px-2.5">
-        <span className="flex w-9 flex-col items-start gap-0.5">
+      <div className="absolute inset-x-0 bottom-0 flex h-14 items-center justify-between border-t-2 border-ink bg-ink px-2 sm:h-[4.25rem] sm:px-2.5">
+        <span className="flex w-7 flex-col items-start gap-0.5 sm:w-9">
           <motion.span
             style={{ opacity: speedOpacity }}
             className="rounded bg-primary px-1 py-0.5 font-display text-[10px] font-bold leading-none text-ink"
@@ -101,7 +101,7 @@ export function SpinHud({
           </motion.span>
         </span>
         <StopButton />
-        <span className="flex w-9 justify-end">
+        <span className="flex w-7 justify-end sm:w-9">
           <OrbitDial />
         </span>
       </div>
